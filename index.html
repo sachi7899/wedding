@@ -65,11 +65,21 @@
     .container{max-width:var(--content-default);margin-inline:auto;padding-inline:var(--space-6);}
     .container-wide{max-width:var(--content-wide);margin-inline:auto;padding-inline:var(--space-6);}
     .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border-width:0;}
+
+    /* ── Particle canvas overlay ── */
+    #particle-canvas{
+      position:fixed;top:0;left:0;width:100%;height:100%;
+      pointer-events:none;z-index:50;
+      opacity:0;transition:opacity 1s ease;
+    }
+    #particle-canvas.active{opacity:1;}
+
     .fade-in{opacity:1;}
     @supports(animation-timeline:scroll()){
       .fade-in{opacity:0;animation:revealFade linear both;animation-timeline:view();animation-range:entry 0% entry 80%;}
     }
     @keyframes revealFade{to{opacity:1;}}
+
     .site-header{position:fixed;top:0;left:0;right:0;z-index:100;padding:var(--space-4) var(--space-6);display:flex;align-items:center;justify-content:space-between;background:oklch(from var(--color-bg) l c h/0.88);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid oklch(from var(--color-text) l c h/0.06);}
     .site-logo{display:flex;align-items:center;gap:var(--space-3);text-decoration:none;color:var(--color-primary);}
     .logo-svg{width:36px;height:36px;}
@@ -92,23 +102,62 @@
     .divider-ornament{display:flex;align-items:center;gap:var(--space-4);max-width:280px;}
     .divider-ornament::before,.divider-ornament::after{content:'';flex:1;height:1px;background:linear-gradient(in oklab,transparent,var(--color-gold),transparent);opacity:.5;}
     .divider-ornament-inner{color:var(--color-gold);font-size:var(--text-base);}
+
     .hero{min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:var(--space-32) var(--space-6) var(--space-24);position:relative;overflow:hidden;}
     .hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 0%,oklch(from var(--color-primary) l c h/0.09) 0%,transparent 60%),radial-gradient(ellipse 60% 40% at 80% 80%,oklch(from var(--color-gold) l c h/0.07) 0%,transparent 50%),radial-gradient(ellipse 40% 40% at 15% 70%,oklch(from var(--color-primary) l c h/0.05) 0%,transparent 50%);pointer-events:none;}
     .hero-floral{position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='none' stroke='%239b4f6e' stroke-opacity='0.035' stroke-width='1'%3E%3Ccircle cx='40' cy='40' r='16'/%3E%3Ccircle cx='40' cy='40' r='8'/%3E%3Cpath d='M40 24v-8M40 64v-8M24 40h-8M64 40h-8M29 29l-5-5M56 56l-5-5M51 29l5-5M24 56l5-5'/%3E%3C/g%3E%3C/svg%3E");pointer-events:none;}
     .hero-inner{position:relative;z-index:1;}
     .hero-eyebrow{font-family:var(--font-display);font-size:var(--text-lg);font-style:italic;color:var(--color-gold);letter-spacing:.08em;margin-bottom:var(--space-5);}
-    .hero-names{font-family:var(--font-display);font-size:var(--text-hero);font-weight:300;color:var(--color-text);line-height:1.0;margin-bottom:var(--space-5);}
+    .hero-names{font-family:var(--font-display);font-size:var(--text-hero);font-weight:300;color:var(--color-text);line-height:1.0;margin-bottom:var(--space-3);}
     .hero-names .amp{color:var(--color-primary);font-style:italic;font-weight:400;display:block;font-size:.55em;line-height:1.6;}
-    /* Comic illustration styles */
-    .hero-illustration{margin:var(--space-6) auto var(--space-4);width:clamp(180px,30vw,280px);height:clamp(180px,30vw,280px);border-radius:50%;overflow:hidden;border:4px solid oklch(from var(--color-primary) l c h/0.2);box-shadow:0 0 0 8px oklch(from var(--color-gold) l c h/0.10),var(--shadow-lg);background:var(--color-surface-offset);display:flex;align-items:center;justify-content:center;animation:floatComic 4s ease-in-out infinite;}
-    .hero-illustration img{width:100%;height:100%;object-fit:cover;object-position:center top;}
+
+    /* ── Hero illustration: wider non-circle frame ── */
+    .hero-illustration{
+      margin:var(--space-2) auto var(--space-5);
+      width:clamp(200px,36vw,340px);
+      height:clamp(200px,36vw,340px);
+      border-radius:var(--radius-xl);
+      overflow:hidden;
+      border:3px solid oklch(from var(--color-primary) l c h/0.18);
+      box-shadow:0 0 0 6px oklch(from var(--color-gold) l c h/0.10),var(--shadow-lg);
+      background:linear-gradient(135deg,var(--color-primary-soft),var(--color-gold-soft));
+      display:flex;align-items:center;justify-content:center;
+      animation:floatComic 5s ease-in-out infinite;
+      position:relative;
+    }
+    .hero-illustration::before{
+      content:'';position:absolute;inset:0;
+      background:linear-gradient(to bottom,transparent 60%,oklch(from var(--color-primary) l c h/0.08));
+      z-index:1;pointer-events:none;
+    }
+    .hero-illustration img{
+      width:100%;height:100%;
+      object-fit:cover;object-position:center center;
+    }
+    /* small hearts floating around the illustration */
+    .hero-illustration-wrap{position:relative;display:inline-block;}
+    .heart-pop{
+      position:absolute;font-size:1.1rem;
+      animation:heartFloat 3.5s ease-in-out infinite;
+      pointer-events:none;
+      z-index:2;
+    }
+    .heart-pop:nth-child(1){top:-10px;left:-16px;animation-delay:0s;}
+    .heart-pop:nth-child(2){top:-14px;right:-14px;animation-delay:1.1s;font-size:.85rem;}
+    .heart-pop:nth-child(3){bottom:10px;left:-18px;animation-delay:2.2s;font-size:.75rem;}
+    @keyframes heartFloat{
+      0%,100%{transform:translateY(0) scale(1);opacity:.85;}
+      50%{transform:translateY(-12px) scale(1.2);opacity:1;}
+    }
     @keyframes floatComic{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+
     .hero-date{font-family:var(--font-display);font-size:var(--text-xl);font-weight:400;color:var(--color-text-muted);letter-spacing:.06em;margin-bottom:var(--space-2);}
     .hero-location{font-size:var(--text-sm);color:var(--color-text-faint);letter-spacing:.12em;text-transform:uppercase;margin-bottom:var(--space-10);}
     .btn-cta{display:inline-flex;align-items:center;gap:var(--space-2);padding:var(--space-4) var(--space-8);background:var(--color-primary);color:#fff;text-decoration:none;font-size:var(--text-sm);font-weight:500;letter-spacing:.1em;text-transform:uppercase;border-radius:var(--radius-full);box-shadow:var(--shadow-md);border:none;cursor:pointer;}
     .btn-cta:hover{background:var(--color-primary-hover);box-shadow:var(--shadow-lg);transform:translateY(-2px);}
     .hero-scroll-hint{position:absolute;bottom:var(--space-8);left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:var(--space-2);color:var(--color-text-faint);font-size:var(--text-xs);letter-spacing:.1em;text-transform:uppercase;animation:scrollBounce 2s ease-in-out infinite;}
     @keyframes scrollBounce{0%,100%{transform:translateX(-50%) translateY(0);}50%{transform:translateX(-50%) translateY(7px);}}
+
     .countdown-section{padding:clamp(var(--space-10),5vw,var(--space-20)) var(--space-6);background:var(--color-surface);border-top:1px solid oklch(from var(--color-text) l c h/0.06);border-bottom:1px solid oklch(from var(--color-text) l c h/0.06);text-align:center;}
     .countdown-eyebrow{font-size:var(--text-xs);letter-spacing:.15em;text-transform:uppercase;color:var(--color-text-faint);margin-bottom:var(--space-6);}
     .countdown-wrap{display:flex;align-items:flex-start;justify-content:center;gap:clamp(var(--space-4),3vw,var(--space-10));}
@@ -186,6 +235,9 @@
   </style>
 </head>
 <body>
+<!-- Particle canvas: flowers + rain -->
+<canvas id="particle-canvas" aria-hidden="true"></canvas>
+
 <a href="#main" class="sr-only">Skip to main content</a>
 <header class="site-header" role="banner">
   <a href="#" class="site-logo" aria-label="Wedding Home">
@@ -227,17 +279,24 @@
   <div class="hero-inner">
     <p class="hero-eyebrow">❖ &nbsp; Together we begin &nbsp; ❖</p>
     <h1 class="hero-names">Sachin<span class="amp">&amp;</span>Ardra</h1>
-    <!-- Kerala wedding couple illustration -->
-    <div class="hero-illustration" aria-label="Kerala wedding couple illustration">
-      <img
-        src="https://pplx-res.cloudinary.com/image/upload/pplx_search_images/7b6657257e1163a85daf299924d83c7de53cdd7a4.jpg"
-        alt="Kerala wedding couple — bride in red and gold saree, groom in white dhoti"
-        width="280"
-        height="280"
-        loading="eager"
-        onerror="this.onerror=null;this.parentElement.style.background='var(--color-primary-soft)';this.parentElement.innerHTML='<div style=\'display:flex;align-items:center;justify-content:center;height:100%;font-size:4rem;\'>💑</div>';"
-      />
+
+    <!-- Kerala 3D wedding couple illustration with floating hearts -->
+    <div class="hero-illustration-wrap">
+      <span class="heart-pop" aria-hidden="true">💕</span>
+      <span class="heart-pop" aria-hidden="true">🌸</span>
+      <span class="heart-pop" aria-hidden="true">💛</span>
+      <div class="hero-illustration" aria-label="Kerala wedding couple — bride and groom in traditional attire">
+        <img
+          src="https://pplx-res.cloudinary.com/image/upload/pplx_search_images/bfcb2b83d05ed5c319453ed327760a3ab2ce9c8f.jpg"
+          alt="Kerala 3D cartoon wedding couple — groom in white mundu, bride in red-gold saree, wearing green garlands"
+          width="340"
+          height="340"
+          loading="eager"
+          onerror="this.onerror=null;this.parentElement.style.background='var(--color-primary-soft)';this.parentElement.innerHTML='<div style=\'display:flex;align-items:center;justify-content:center;height:100%;font-size:5rem;\'>💑</div>';"
+        />
+      </div>
     </div>
+
     <div class="divider-ornament" style="margin:var(--space-5) auto;" aria-hidden="true"><div class="divider-ornament-inner">❧</div></div>
     <p class="hero-date">September 5 &amp; 6, 2026</p>
     <p class="hero-location">Guruvayoor &nbsp;·&nbsp; Pattambi &nbsp;·&nbsp; Palakkad, Kerala</p>
@@ -280,7 +339,7 @@
             width="480"
             height="600"
             loading="lazy"
-            onerror="this.style.display='none';this.parentElement.innerHTML='<div style=\'display:flex;align-items:center;justify-content:center;height:100%;flex-direction:column;gap:1rem;color:var(--color-text-faint);font-family:var(--font-display);font-size:1.2rem;font-style:italic;padding:2rem;text-align:center;\'>\u{1F4F8}<br>Photo loading...<br>Check back shortly</div>';"
+            onerror="this.style.display='none';this.parentElement.innerHTML='<div style=\'display:flex;align-items:center;justify-content:center;height:100%;flex-direction:column;gap:1rem;color:var(--color-text-faint);font-family:var(--font-display);font-size:1.2rem;font-style:italic;padding:2rem;text-align:center;\'>📸<br>Photo loading...<br>Check back shortly</div>';"
           />
         </div>
         <div class="story-badge"><span class="badge-date">Sep 5 &amp; 6</span><span class="badge-label">Wedding Days</span></div>
@@ -371,42 +430,190 @@
   <p class="footer-sub" style="margin-top:var(--space-2);">September 5 &amp; 6, 2026 &nbsp;·&nbsp; Kerala, India</p>
   <p class="footer-sub" style="margin-top:var(--space-6);font-size:var(--text-xs);">Made with ❤️ &nbsp;·&nbsp; Hosted on <a href="https://pages.github.com" target="_blank" rel="noopener noreferrer" style="color:var(--color-primary);text-decoration:none;">GitHub Pages</a></p>
 </footer>
+
 <script>
-(function(){const btn=document.querySelector('[data-theme-toggle]'),html=document.documentElement;let d=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';html.setAttribute('data-theme',d);setIcon();btn&&btn.addEventListener('click',()=>{d=d==='dark'?'light':'dark';html.setAttribute('data-theme',d);setIcon();});function setIcon(){if(!btn)return;btn.setAttribute('aria-label','Switch to '+(d==='dark'?'light':'dark')+' mode');btn.innerHTML=d==='dark'?'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>':'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';}})();
+/* ── Theme toggle ── */
+(function(){
+  const btn=document.querySelector('[data-theme-toggle]'),html=document.documentElement;
+  let d=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';
+  html.setAttribute('data-theme',d);setIcon();
+  btn&&btn.addEventListener('click',()=>{d=d==='dark'?'light':'dark';html.setAttribute('data-theme',d);setIcon();});
+  function setIcon(){if(!btn)return;btn.setAttribute('aria-label','Switch to '+(d==='dark'?'light':'dark')+' mode');btn.innerHTML=d==='dark'?'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>':'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';}
+})();
+
+/* ── Mobile nav ── */
 const ham=document.getElementById('hamburger'),mnav=document.getElementById('mobile-nav');
 ham.addEventListener('click',()=>{const o=mnav.classList.toggle('open');ham.classList.toggle('open',o);ham.setAttribute('aria-expanded',o);document.body.style.overflow=o?'hidden':'';});
 function closeMobileNav(){mnav.classList.remove('open');ham.classList.remove('open');ham.setAttribute('aria-expanded','false');document.body.style.overflow='';}
+
+/* ── Countdown ── */
 const WEDDING_DATE=new Date('2026-09-05T08:00:00+05:30');
 function tick(){const diff=WEDDING_DATE-new Date();if(diff<=0){['d','h','m','s'].forEach(i=>document.getElementById('cd-'+i).textContent='00');return;}const d=Math.floor(diff/86400000),h=Math.floor(diff%86400000/3600000),m=Math.floor(diff%3600000/60000),s=Math.floor(diff%60000/1000);document.getElementById('cd-d').textContent=String(d).padStart(2,'0');document.getElementById('cd-h').textContent=String(h).padStart(2,'0');document.getElementById('cd-m').textContent=String(m).padStart(2,'0');document.getElementById('cd-s').textContent=String(s).padStart(2,'0');}
 tick();setInterval(tick,1000);
+
+/* ── RSVP form ── */
 const form=document.getElementById('rsvp-form');
 form.addEventListener('submit',async function(e){
   e.preventDefault();
   const n=document.getElementById('r-name').value.trim(),a=document.getElementById('r-attend').value;
   if(!n||!a){alert('Please fill in your name and attendance.');return;}
-  const btn=document.getElementById('rsvp-btn');
-  const formId=form.action.includes('YOUR_FORM_ID');
-  if(formId){
+  const rBtn=document.getElementById('rsvp-btn');
+  if(form.action.includes('YOUR_FORM_ID')){
     document.getElementById('rsvp-success').style.display='block';
     document.getElementById('rsvp-success').textContent='✨ Thank you! Your RSVP is received. (Note: email notifications need Formspree setup.)';
     form.querySelectorAll('input,select,textarea,button').forEach(el=>el.disabled=true);
-    btn.textContent='✓ RSVP Sent!';
-    return;
+    rBtn.textContent='✓ RSVP Sent!';return;
   }
-  btn.textContent='Sending…';btn.disabled=true;
+  rBtn.textContent='Sending…';rBtn.disabled=true;
   try{
     const res=await fetch(form.action,{method:'POST',body:new FormData(form),headers:{Accept:'application/json'}});
-    if(res.ok){
-      document.getElementById('rsvp-success').style.display='block';
-      form.querySelectorAll('input,select,textarea,button').forEach(el=>el.disabled=true);
-      btn.textContent='✓ RSVP Sent!';
-      document.querySelector('.formspree-note').style.display='none';
-    } else {
-      btn.textContent='Send RSVP 💌';btn.disabled=false;
-      alert('Something went wrong. Please try again or WhatsApp us directly.');
-    }
-  }catch(err){btn.textContent='Send RSVP 💌';btn.disabled=false;alert('Network error. Please try again.');}
+    if(res.ok){document.getElementById('rsvp-success').style.display='block';form.querySelectorAll('input,select,textarea,button').forEach(el=>el.disabled=true);rBtn.textContent='✓ RSVP Sent!';document.querySelector('.formspree-note').style.display='none';}
+    else{rBtn.textContent='Send RSVP 💌';rBtn.disabled=false;alert('Something went wrong. Please try again.');}
+  }catch(err){rBtn.textContent='Send RSVP 💌';rBtn.disabled=false;alert('Network error. Please try again.');}
 });
+
+/* ════════════════════════════════════════
+   PARTICLE SYSTEM — Flowers + Rain
+   Activates after user scrolls past hero
+   Respects prefers-reduced-motion
+   ════════════════════════════════════════ */
+(function(){
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  const canvas = document.getElementById('particle-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, particles = [], animId, active = false, mode = 'flowers';
+  const PETAL_COLORS = ['#e8a0b4','#f5c6d0','#d4899e','#f9d5b0','#fde9a8','#c8e6c9','#f7c5e0'];
+  const RAIN_COLOR = 'rgba(155,79,110,0.18)';
+
+  function resize(){
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  /* ── Petal shape ── */
+  function drawPetal(ctx, x, y, size, angle, color){
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(angle);
+    ctx.beginPath();
+    ctx.ellipse(0, 0, size * 0.5, size, 0, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.globalAlpha = 0.75;
+    ctx.fill();
+    ctx.restore();
+  }
+
+  /* ── Rain drop ── */
+  function drawRain(ctx, x, y, len){
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + len * 0.15, y + len);
+    ctx.strokeStyle = RAIN_COLOR;
+    ctx.lineWidth = 1;
+    ctx.globalAlpha = 0.6;
+    ctx.stroke();
+  }
+
+  function createParticle(type){
+    if(type === 'petal') return {
+      type: 'petal',
+      x: Math.random() * W,
+      y: -20,
+      size: 5 + Math.random() * 9,
+      speed: 0.8 + Math.random() * 1.6,
+      drift: (Math.random() - 0.5) * 1.2,
+      angle: Math.random() * Math.PI * 2,
+      spin: (Math.random() - 0.5) * 0.06,
+      color: PETAL_COLORS[Math.floor(Math.random() * PETAL_COLORS.length)],
+      wobble: Math.random() * Math.PI * 2,
+      wobbleSpeed: 0.03 + Math.random() * 0.03
+    };
+    return {
+      type: 'rain',
+      x: Math.random() * W,
+      y: -40,
+      len: 14 + Math.random() * 16,
+      speed: 5 + Math.random() * 5
+    };
+  }
+
+  function spawnBatch(){
+    const count = mode === 'flowers' ? 3 : 6;
+    for(let i = 0; i < count; i++) particles.push(createParticle(mode === 'flowers' ? 'petal' : 'rain'));
+  }
+
+  let spawnTimer = 0;
+  function animate(ts){
+    ctx.clearRect(0, 0, W, H);
+    spawnTimer++;
+    if(spawnTimer % (mode === 'flowers' ? 8 : 4) === 0) spawnBatch();
+
+    particles = particles.filter(p => {
+      if(p.type === 'petal'){
+        p.wobble += p.wobbleSpeed;
+        p.x += p.drift + Math.sin(p.wobble) * 0.7;
+        p.y += p.speed;
+        p.angle += p.spin;
+        drawPetal(ctx, p.x, p.y, p.size, p.angle, p.color);
+        return p.y < H + 20;
+      } else {
+        p.x += p.speed * 0.2;
+        p.y += p.speed;
+        drawRain(ctx, p.x, p.y, p.len);
+        return p.y < H + 40;
+      }
+    });
+
+    ctx.globalAlpha = 1;
+    animId = requestAnimationFrame(animate);
+  }
+
+  function startEffect(){
+    if(active) return;
+    active = true;
+    canvas.classList.add('active');
+    animate();
+  }
+
+  function stopEffect(){
+    active = false;
+    canvas.classList.remove('active');
+    cancelAnimationFrame(animId);
+    ctx.clearRect(0, 0, W, H);
+    particles = [];
+  }
+
+  /* ── Mode cycling: alternate flowers → rain → flowers every 8s while scrolling ── */
+  let modeTimer = null;
+  function cycleModes(){
+    clearInterval(modeTimer);
+    modeTimer = setInterval(() => {
+      mode = mode === 'flowers' ? 'rain' : 'flowers';
+    }, 8000);
+  }
+
+  /* ── Scroll trigger ── */
+  let scrollTimer = null;
+  const heroH = () => document.querySelector('.hero').offsetHeight;
+  window.addEventListener('scroll', () => {
+    if(window.scrollY > heroH() * 0.3){
+      if(!active){
+        mode = 'flowers';
+        cycleModes();
+        startEffect();
+      }
+      clearTimeout(scrollTimer);
+      scrollTimer = setTimeout(() => {
+        stopEffect();
+        clearInterval(modeTimer);
+      }, 3500);
+    }
+  }, {passive: true});
+
+})();
 </script>
 </body>
 </html>
