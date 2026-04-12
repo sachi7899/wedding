@@ -111,30 +111,41 @@
     .hero-names{font-family:var(--font-display);font-size:var(--text-hero);font-weight:300;color:var(--color-text);line-height:1.0;margin-bottom:var(--space-3);}
     .hero-names .amp{color:var(--color-primary);font-style:italic;font-weight:400;display:block;font-size:.55em;line-height:1.6;}
 
-    /* ── Hero illustration: wider non-circle frame ── */
+    /* ── Hero photo frame — elegant portrait style ── */
     .hero-illustration{
       margin:var(--space-2) auto var(--space-5);
-      width:clamp(200px,36vw,340px);
-      height:clamp(200px,36vw,340px);
-      border-radius:var(--radius-xl);
+      width:clamp(180px,30vw,280px);
+      height:clamp(220px,38vw,360px);
+      border-radius:50% 50% 48% 48% / 40% 40% 60% 60%;
       overflow:hidden;
-      border:3px solid oklch(from var(--color-primary) l c h/0.18);
-      box-shadow:0 0 0 6px oklch(from var(--color-gold) l c h/0.10),var(--shadow-lg);
+      border:3px solid oklch(from var(--color-gold) l c h/0.35);
+      box-shadow:
+        0 0 0 6px oklch(from var(--color-primary) l c h/0.08),
+        0 0 0 10px oklch(from var(--color-gold) l c h/0.06),
+        var(--shadow-lg);
       background:linear-gradient(135deg,var(--color-primary-soft),var(--color-gold-soft));
       display:flex;align-items:center;justify-content:center;
-      animation:floatComic 5s ease-in-out infinite;
+      animation:floatPhoto 6s ease-in-out infinite;
       position:relative;
     }
-    .hero-illustration::before{
-      content:'';position:absolute;inset:0;
-      background:linear-gradient(to bottom,transparent 60%,oklch(from var(--color-primary) l c h/0.08));
+    .hero-illustration::after{
+      content:'';
+      position:absolute;inset:0;
+      background:linear-gradient(
+        to bottom,
+        transparent 50%,
+        oklch(from var(--color-primary) l c h/0.12) 100%
+      );
       z-index:1;pointer-events:none;
+      border-radius:inherit;
     }
     .hero-illustration img{
       width:100%;height:100%;
-      object-fit:cover;object-position:center center;
+      object-fit:cover;
+      object-position:center top;
+      display:block;
     }
-    /* small hearts floating around the illustration */
+    /* floating hearts around the photo */
     .hero-illustration-wrap{position:relative;display:inline-block;}
     .heart-pop{
       position:absolute;font-size:1.1rem;
@@ -149,7 +160,7 @@
       0%,100%{transform:translateY(0) scale(1);opacity:.85;}
       50%{transform:translateY(-12px) scale(1.2);opacity:1;}
     }
-    @keyframes floatComic{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+    @keyframes floatPhoto{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
 
     .hero-date{font-family:var(--font-display);font-size:var(--text-xl);font-weight:400;color:var(--color-text-muted);letter-spacing:.06em;margin-bottom:var(--space-2);}
     .hero-location{font-size:var(--text-sm);color:var(--color-text-faint);letter-spacing:.12em;text-transform:uppercase;margin-bottom:var(--space-10);}
@@ -280,17 +291,17 @@
     <p class="hero-eyebrow">❖ &nbsp; Together we begin &nbsp; ❖</p>
     <h1 class="hero-names">Sachin<span class="amp">&amp;</span>Ardra</h1>
 
-    <!-- Kerala 3D wedding couple illustration with floating hearts -->
+    <!-- Real couple photo in elegant portrait frame with floating hearts -->
     <div class="hero-illustration-wrap">
       <span class="heart-pop" aria-hidden="true">💕</span>
       <span class="heart-pop" aria-hidden="true">🌸</span>
       <span class="heart-pop" aria-hidden="true">💛</span>
-      <div class="hero-illustration" aria-label="Kerala wedding couple — bride and groom in traditional attire">
+      <div class="hero-illustration" aria-label="Sachin and Ardra — our photo">
         <img
-          src="https://pplx-res.cloudinary.com/image/upload/pplx_search_images/bfcb2b83d05ed5c319453ed327760a3ab2ce9c8f.jpg"
-          alt="Kerala 3D cartoon wedding couple — groom in white mundu, bride in red-gold saree, wearing green garlands"
-          width="340"
-          height="340"
+          src="https://raw.githubusercontent.com/sachi7899/wedding/main/assets/sachin-ardra.jpg.JPG"
+          alt="Sachin and Ardra together"
+          width="280"
+          height="360"
           loading="eager"
           onerror="this.onerror=null;this.parentElement.style.background='var(--color-primary-soft)';this.parentElement.innerHTML='<div style=\'display:flex;align-items:center;justify-content:center;height:100%;font-size:5rem;\'>💑</div>';"
         />
@@ -383,7 +394,7 @@
         <img src="https://raw.githubusercontent.com/sachi7899/wedding/main/assets/sachin-ardra.jpg.JPG" alt="Sachin and Ardra together" width="800" height="480" loading="lazy" onerror="this.onerror=null;this.parentElement.innerHTML='<div class=\'g-placeholder\'><div><div style=\'font-size:2.5rem;margin-bottom:var(--space-3);\'>&#x1F4F8;</div>Photo loading...</div></div>';"/>
       </div>
       <div class="g-item" role="listitem"><img src="https://raw.githubusercontent.com/sachi7899/wedding/main/assets/wedding_photo_web.jpg" alt="Flower decorations" width="400" height="300" loading="lazy"/></div>
-      <div class="g-item" role="listitem"><img src="https://raw.githubusercontent.com/sachi7899/wedding/main/assets/wedding_photo_web.jpg0" alt="Ceremony lights" width="400" height="300" loading="lazy"/></div>
+      <div class="g-item" role="listitem"><img src="https://raw.githubusercontent.com/sachi7899/wedding/main/assets/wedding_photo_web.jpg" alt="Ceremony lights" width="400" height="300" loading="lazy"/></div>
       <div class="g-item" role="listitem"><img src="https://picsum.photos/seed/guruvayoor-temple/400/280" alt="Temple" width="400" height="280" loading="lazy"/></div>
       <div class="g-item" role="listitem"><img src="https://picsum.photos/seed/kerala-palakkad/400/280" alt="Palakkad landscape" width="400" height="280" loading="lazy"/></div>
       <div class="g-item" role="listitem"><div class="g-placeholder"><div><div style="font-size:2.5rem;margin-bottom:var(--space-3);">&#x1F490;</div>More photos coming soon</div></div></div>
@@ -493,7 +504,6 @@ form.addEventListener('submit',async function(e){
   resize();
   window.addEventListener('resize', resize);
 
-  /* ── Petal shape ── */
   function drawPetal(ctx, x, y, size, angle, color){
     ctx.save();
     ctx.translate(x, y);
@@ -506,7 +516,6 @@ form.addEventListener('submit',async function(e){
     ctx.restore();
   }
 
-  /* ── Rain drop ── */
   function drawRain(ctx, x, y, len){
     ctx.beginPath();
     ctx.moveTo(x, y);
@@ -586,7 +595,6 @@ form.addEventListener('submit',async function(e){
     particles = [];
   }
 
-  /* ── Mode cycling: alternate flowers → rain → flowers every 8s while scrolling ── */
   let modeTimer = null;
   function cycleModes(){
     clearInterval(modeTimer);
@@ -595,7 +603,6 @@ form.addEventListener('submit',async function(e){
     }, 8000);
   }
 
-  /* ── Scroll trigger ── */
   let scrollTimer = null;
   const heroH = () => document.querySelector('.hero').offsetHeight;
   window.addEventListener('scroll', () => {
