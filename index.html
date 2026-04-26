@@ -489,18 +489,24 @@ form.addEventListener('submit',async function(e){
 });
 
 /* ══════════════════════════════════════
-   TAMIL ROMANTIC MUSIC PLAYER
-   YouTube IFrame API — plays audio from
-   minimised hidden embed. No particles.
+   TAMIL ROMANTIC MUSIC PLAYER v2
+   Auto-starts on first user interaction.
+   YouTube IFrame API hidden embed.
    ══════════════════════════════════════ */
 (function(){
   const TRACKS=[
-    {title:'Munbe Vaa',         sub:'Sillunu Oru Kaadhal',   yt:'nxsRBKTOAWA'},
-    {title:'Nenjukkul Peidhidum', sub:'Vinnaithaandi Varuvaaya', yt:'hE-7IB57rJY'},
-    {title:'Kannaana Kanney',   sub:'Viswasam',              yt:'PVj1MbdQZqk'},
-    {title:'Uyirile Kalanthaai', sub:'Rhythm',               yt:'rOxHKxjMKhw'},
-    {title:'Mazhai Kuruvi',     sub:'Chekka Chivantha Vaanam',yt:'KH8hXZ4lMaI'},
-    {title:'Aayiram Jenmangal', sub:'Tamil Romantic',        yt:'lAR8YFZyF4I'},
+    {title:'Munbe Vaa',              sub:'Sillunu Oru Kaadhal',          yt:'nxsRBKTOAWA'},
+    {title:'Nenjukkul Peidhidum',    sub:'Vinnaithaandi Varuvaaya',      yt:'hE-7IB57rJY'},
+    {title:'Uyire Uyire',            sub:'Bombay',                       yt:'MqE0XMr5HPs'},
+    {title:'Kannalane',              sub:'Bombay',                       yt:'0EkDE33SPFU'},
+    {title:'Vennilave Vennilave',    sub:'Minsara Kanavu',               yt:'VEPGMxT7vNo'},
+    {title:'Mazhai Kuruvi',          sub:'Chekka Chivantha Vaanam',      yt:'KH8hXZ4lMaI'},
+    {title:'Kannaana Kanney',        sub:'Viswasam',                     yt:'PVj1MbdQZqk'},
+    {title:'Uyirile Kalanthaai',     sub:'Rhythm',                       yt:'rOxHKxjMKhw'},
+    {title:'Oh Penne',               sub:'Kadhal Desam',                 yt:'qDSgtIXVfkE'},
+    {title:'Ennai Konjam Maatri',    sub:'Kaaka Kaaka',                  yt:'3i0PqMB2OaM'},
+    {title:'Aayiram Jenmangal',      sub:'Tamil Romantic Classic',       yt:'lAR8YFZyF4I'},
+    {title:'Naan Pizhai',            sub:'Maryan',                       yt:'UmH6gPzPniw'},
   ];
 
   let cur=0, playing=false, ytPlayer=null, progTimer=null;
@@ -554,8 +560,8 @@ form.addEventListener('submit',async function(e){
       videoId:TRACKS[idx].yt,
       playerVars:{autoplay:1,controls:0,disablekb:1,iv_load_policy:3,modestbranding:1,rel:0,playsinline:1,origin:location.origin},
       events:{
-        onReady:e=>{e.target.playVideo();playing=true;setPlayIcon(true);startProg();},
-        onStateChange:e=>{
+        onReady:function(e){e.target.playVideo();playing=true;setPlayIcon(true);startProg();},
+        onStateChange:function(e){
           if(e.data===YT.PlayerState.ENDED){nextTrack();}
           if(e.data===YT.PlayerState.PLAYING){playing=true;setPlayIcon(true);startProg();}
           if(e.data===YT.PlayerState.PAUSED){playing=false;setPlayIcon(false);stopProg();}
@@ -578,7 +584,21 @@ form.addEventListener('submit',async function(e){
   function nextTrack(){playTrack((cur+1)%TRACKS.length);}
   function prevTrack(){playTrack((cur-1+TRACKS.length)%TRACKS.length);}
 
-  document.getElementById('playBtn').addEventListener('click',()=>{
+  /* ── Auto-start on first user interaction anywhere on page ── */
+  let autoStarted=false;
+  function handleFirstInteraction(){
+    if(autoStarted)return;
+    autoStarted=true;
+    ['click','touchstart','keydown','scroll'].forEach(function(ev){
+      document.removeEventListener(ev,handleFirstInteraction,true);
+    });
+    setTimeout(function(){ if(!playing) playTrack(cur); },400);
+  }
+  ['click','touchstart','keydown','scroll'].forEach(function(ev){
+    document.addEventListener(ev,handleFirstInteraction,{passive:true,capture:true});
+  });
+
+  document.getElementById('playBtn').addEventListener('click',function(){
     if(!ytPlayer){playTrack(cur);return;}
     try{
       if(playing){ytPlayer.pauseVideo();}
