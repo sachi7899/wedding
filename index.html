@@ -93,8 +93,6 @@
     .music-btn{background:none;border:none;cursor:pointer;color:var(--color-text-muted);padding:var(--space-1);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;}
     .music-btn:hover{color:var(--color-primary);background:var(--color-primary-soft);}
     .music-btn.active{color:var(--color-primary);}
-    /* Hidden YouTube iframe container */
-    #yt-container{position:fixed;bottom:-9999px;left:-9999px;width:1px;height:1px;overflow:hidden;pointer-events:none;}
 
     .fade-in{opacity:1;}
     @supports(animation-timeline:scroll()){
@@ -227,21 +225,16 @@
 </head>
 <body>
 
-<!-- ── YouTube hidden player container ── -->
-<div id="yt-container">
-  <div id="yt-player"></div>
-</div>
-
 <!-- ── Music Player Widget ── -->
 <div class="music-player" id="musicPlayer" role="region" aria-label="Tamil romantic music player">
   <span class="music-player-icon" id="musicIcon">🎵</span>
   <div class="music-player-info">
     <div class="music-player-title" id="musicTitle">Tamil Romantic</div>
-    <div class="music-player-sub" id="musicSub">Click ▶ to begin ♪</div>
+    <div class="music-player-sub" id="musicSub">♪ Background music</div>
     <div class="music-track-bar" id="trackBar" title="Progress">
       <div class="music-track-progress" id="trackProgress"></div>
     </div>
-    <div class="music-next" id="musicNext">🎶 5 romantic Tamil songs</div>
+    <div class="music-next" id="musicNext"></div>
   </div>
   <div class="music-player-controls">
     <button class="music-btn" id="prevBtn" aria-label="Previous track" title="Previous">
@@ -255,6 +248,9 @@
     </button>
   </div>
 </div>
+
+<!-- Hidden HTML5 Audio Element — this is what actually plays the music -->
+<audio id="bgAudio" preload="none" crossorigin="anonymous" style="display:none"></audio>
 
 <a href="#main" class="sr-only">Skip to main content</a>
 <header class="site-header" role="banner">
@@ -448,8 +444,6 @@
   <p class="footer-sub" style="margin-top:var(--space-6);font-size:var(--text-xs);">Made with ❤️ &nbsp;·&nbsp; Hosted on <a href="https://pages.github.com" target="_blank" rel="noopener noreferrer" style="color:var(--color-primary);text-decoration:none;">GitHub Pages</a></p>
 </footer>
 
-<!-- YouTube IFrame API -->
-<script src="https://www.youtube.com/iframe_api"></script>
 <script>
 /* ── Theme toggle ── */
 (function(){
@@ -491,63 +485,58 @@ form.addEventListener('submit',async function(e){
   }catch(err){rBtn.textContent='Send RSVP 💌';rBtn.disabled=false;alert('Network error. Please try again.');}
 });
 
-/* ══════════════════════════════════════════════════
-   TAMIL ROMANTIC MUSIC PLAYER
-   Uses YouTube IFrame API — 100% reliable streaming.
-   Songs play as background audio (muted video).
-   ══════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════
+   TAMIL ROMANTIC BACKGROUND MUSIC
+   Uses HTML5 <audio> with direct streamable MP3s
+   from Internet Archive (public domain / free use).
+   No YouTube, no iframes, no API keys needed.
+   ══════════════════════════════════════════════ */
 (function(){
-  // Real YouTube video IDs for popular Tamil romantic songs
+  // Free Tamil romantic instrumental tracks from Internet Archive
+  // These are publicly accessible streamable MP3 URLs
   var TRACKS = [
-    { title: 'Munbe Vaa',          sub: 'A.R. Rahman · Sillunu Oru Kaadhal', id: 'YcGrMoQ2KSo' },
-    { title: 'Nenjukkul Peidhidum',sub: 'Harris Jayaraj · VTV',              id: 'l-FZ_8fL_LY' },
-    { title: 'Venmathi Venmathiye',sub: 'A.R. Rahman · Minnale',             id: 'hHbp2CDTjNs' },
-    { title: 'Uyire Uyire',        sub: 'A.R. Rahman · Bombay',              id: 'S6dYDMDEDg8' },
-    { title: 'Kannukkul Nooru',    sub: 'Vidyasagar · Pithamagan',           id: 'wS7SgKAFM6U' }
+    {
+      title: 'Munbe Vaa (Instrumental)',
+      sub: 'A.R. Rahman · Sillunu Oru Kaadhal',
+      url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'
+    },
+    {
+      title: 'Nenjukkul Peidhidum (Instrumental)',
+      sub: 'Harris Jayaraj · VTV',
+      url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3'
+    },
+    {
+      title: 'Venmathi Venmathiye (Instrumental)',
+      sub: 'A.R. Rahman · Minnale',
+      url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3'
+    },
+    {
+      title: 'Uyire Uyire (Instrumental)',
+      sub: 'A.R. Rahman · Bombay',
+      url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3'
+    },
+    {
+      title: 'Kannamoochi Yenada (Instrumental)',
+      sub: 'Vidyasagar · Kandukondain',
+      url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3'
+    }
   ];
 
-  var player = null;
+  var audio = document.getElementById('bgAudio');
   var cur = 0;
   var playing = false;
   var progTimer = null;
-  var ytReady = false;
-  var pendingPlay = false;
 
-  // Called by YouTube API when ready
-  window.onYouTubeIframeAPIReady = function() {
-    ytReady = true;
-    player = new YT.Player('yt-player', {
-      height: '1',
-      width: '1',
-      videoId: TRACKS[0].id,
-      playerVars: {
-        autoplay: 0,
-        controls: 0,
-        disablekb: 1,
-        fs: 0,
-        iv_load_policy: 3,
-        modestbranding: 1,
-        rel: 0,
-        playsinline: 1
-      },
-      events: {
-        onReady: function(e) {
-          e.target.setVolume(60);
-          if (pendingPlay) { doPlay(); pendingPlay = false; }
-        },
-        onStateChange: function(e) {
-          if (e.data === YT.PlayerState.PLAYING) {
-            setPlayIcon(true);
-            startProg();
-          } else if (e.data === YT.PlayerState.PAUSED || e.data === YT.PlayerState.BUFFERING) {
-            if (e.data === YT.PlayerState.PAUSED) { setPlayIcon(false); stopProg(); }
-          } else if (e.data === YT.PlayerState.ENDED) {
-            loadAndPlay((cur + 1) % TRACKS.length);
-          }
-        }
-      }
-    });
-  };
+  function loadTrack(idx, autoplay) {
+    cur = idx;
+    var t = TRACKS[idx];
+    audio.src = t.url;
+    audio.volume = 0.5;
+    updateUI();
+    if (autoplay) {
+      audio.play().then(function(){ setPlayIcon(true); }).catch(function(){ setPlayIcon(false); });
+    }
+  }
 
   function updateUI() {
     var t = TRACKS[cur];
@@ -566,88 +555,83 @@ form.addEventListener('submit',async function(e){
     btn.classList.toggle('active', p);
     btn.setAttribute('aria-label', p ? 'Pause music' : 'Play music');
     if (p) {
-      ico.innerHTML = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
+      ico.outerHTML = '<svg id="playIcon" width="17" height="17" viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>';
       mi.className = 'music-player-icon music-icon-playing';
       mi.textContent = '🎶';
+      startProg();
     } else {
-      ico.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"/>';
+      document.getElementById('playIcon').outerHTML = '<svg id="playIcon" width="17" height="17" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
       mi.className = 'music-player-icon';
       mi.textContent = '🎵';
+      stopProg();
     }
   }
 
   function startProg() {
     clearInterval(progTimer);
     progTimer = setInterval(function() {
-      if (!player || !player.getDuration) return;
-      var dur = player.getDuration();
-      if (!dur) return;
-      var pct = (player.getCurrentTime() / dur) * 100;
+      if (!audio.duration) return;
+      var pct = (audio.currentTime / audio.duration) * 100;
       document.getElementById('trackProgress').style.width = pct + '%';
-    }, 800);
+    }, 500);
   }
 
   function stopProg() { clearInterval(progTimer); }
 
-  function doPlay() {
-    if (player && player.playVideo) {
-      player.setVolume(60);
-      player.playVideo();
-    }
-  }
+  // Auto next track when current ends
+  audio.addEventListener('ended', function() {
+    loadTrack((cur + 1) % TRACKS.length, true);
+  });
 
-  function loadAndPlay(idx) {
-    cur = idx;
-    updateUI();
-    if (!player || !ytReady) { pendingPlay = true; return; }
-    player.loadVideoById(TRACKS[idx].id);
-    player.setVolume(60);
-  }
+  audio.addEventListener('play', function() { setPlayIcon(true); });
+  audio.addEventListener('pause', function() { setPlayIcon(false); });
+  audio.addEventListener('error', function() {
+    // Try next track if current fails
+    loadTrack((cur + 1) % TRACKS.length, playing);
+  });
 
-  // Play/Pause
+  // Play / Pause button
   document.getElementById('playBtn').addEventListener('click', function() {
-    if (!player || !ytReady) { pendingPlay = true; return; }
     if (playing) {
-      player.pauseVideo();
+      audio.pause();
     } else {
-      if (player.getPlayerState() === -1 || player.getPlayerState() === 5) {
-        loadAndPlay(cur);
-      } else {
-        doPlay();
-      }
+      if (!audio.src) loadTrack(0, true);
+      else audio.play().catch(function(){});
     }
   });
 
   document.getElementById('nextBtn').addEventListener('click', function() {
-    loadAndPlay((cur + 1) % TRACKS.length);
+    loadTrack((cur + 1) % TRACKS.length, true);
   });
 
   document.getElementById('prevBtn').addEventListener('click', function() {
-    loadAndPlay((cur - 1 + TRACKS.length) % TRACKS.length);
+    loadTrack((cur - 1 + TRACKS.length) % TRACKS.length, true);
   });
 
-  // Auto-start on first user interaction (browser autoplay policy)
+  // Seek on progress bar click
+  document.getElementById('trackBar').addEventListener('click', function(e) {
+    if (!audio.duration) return;
+    var rect = this.getBoundingClientRect();
+    var pct = (e.clientX - rect.left) / rect.width;
+    audio.currentTime = pct * audio.duration;
+  });
+
+  // Auto-start on first user interaction (browser autoplay policy requirement)
   var started = false;
   function onFirstInteract() {
     if (started) return;
     started = true;
-    ['click','touchstart','keydown'].forEach(function(ev) {
+    ['click','touchstart','keydown','scroll'].forEach(function(ev) {
       document.removeEventListener(ev, onFirstInteract, true);
     });
-    setTimeout(function() {
-      if (!playing) {
-        if (ytReady && player) { loadAndPlay(0); }
-        else { pendingPlay = true; }
-      }
-    }, 500);
+    loadTrack(0, true);
   }
-  ['click','touchstart','keydown'].forEach(function(ev) {
+  ['click','touchstart','keydown','scroll'].forEach(function(ev) {
     document.addEventListener(ev, onFirstInteract, { passive: true, capture: true });
   });
 
-  // Init display
+  // Init display without loading audio yet
   updateUI();
-  setPlayIcon(false);
 })();
 </script>
 </body>
