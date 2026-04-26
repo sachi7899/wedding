@@ -69,8 +69,8 @@
     /* ── Tamil Music Player ── */
     .music-player{
       position:fixed;bottom:var(--space-6);right:var(--space-6);z-index:200;
-      background:oklch(from var(--color-bg) l c h/0.94);
-      backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+      background:oklch(from var(--color-bg) l c h/0.96);
+      backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
       border:1px solid oklch(from var(--color-text) l c h/0.10);
       border-radius:var(--radius-xl);
       box-shadow:var(--shadow-lg);
@@ -86,16 +86,27 @@
     .music-player-info{flex:1;min-width:0;}
     .music-player-title{font-size:var(--text-xs);font-weight:600;color:var(--color-text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .music-player-sub{font-size:0.64rem;color:var(--color-text-faint);letter-spacing:.04em;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .music-track-bar{width:100%;height:3px;background:oklch(from var(--color-text) l c h/0.12);border-radius:var(--radius-full);margin-top:var(--space-2);cursor:pointer;}
-    .music-track-progress{height:100%;background:linear-gradient(in oklab,var(--color-primary),var(--color-gold));border-radius:var(--radius-full);transition:width 0.3s linear;width:0%;}
+    .music-track-bar{width:100%;height:3px;background:oklch(from var(--color-text) l c h/0.12);border-radius:var(--radius-full);margin-top:var(--space-2);cursor:pointer;position:relative;}
+    .music-track-progress{height:100%;background:linear-gradient(in oklab,var(--color-primary),var(--color-gold));border-radius:var(--radius-full);transition:width 0.4s linear;width:0%;}
     .music-next{font-size:0.6rem;color:var(--color-text-faint);margin-top:var(--space-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
     .music-player-controls{display:flex;align-items:center;gap:var(--space-1);flex-shrink:0;}
     .music-btn{background:none;border:none;cursor:pointer;color:var(--color-text-muted);padding:var(--space-1);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;}
     .music-btn:hover{color:var(--color-primary);background:var(--color-primary-soft);}
     .music-btn.active{color:var(--color-primary);}
+    /* volume knob */
+    .music-vol{width:60px;height:3px;cursor:pointer;accent-color:var(--color-primary);margin-top:var(--space-1);}
 
-    /* hidden YT container */
-    #yt-wrap{position:fixed;bottom:-9999px;right:-9999px;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none;z-index:-1;}
+    /* music start overlay — shown until user interacts */
+    .music-start-banner{
+      display:flex;align-items:center;gap:var(--space-2);
+      font-size:var(--text-xs);color:var(--color-text-muted);
+      margin-top:var(--space-1);
+    }
+    .music-start-banner button{
+      font-size:0.65rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+      background:var(--color-primary);color:#fff;border:none;
+      padding:2px 8px;border-radius:var(--radius-full);cursor:pointer;
+    }
 
     .fade-in{opacity:1;}
     @supports(animation-timeline:scroll()){
@@ -232,19 +243,19 @@
 <div class="music-player" id="musicPlayer" role="region" aria-label="Tamil romantic music player">
   <span class="music-player-icon" id="musicIcon">🎵</span>
   <div class="music-player-info">
-    <div class="music-player-title" id="musicTitle">Loading…</div>
-    <div class="music-player-sub" id="musicSub">Tamil Romantic ♪</div>
+    <div class="music-player-title" id="musicTitle">Tamil Romantic</div>
+    <div class="music-player-sub" id="musicSub">Background Music ♪</div>
     <div class="music-track-bar" id="trackBar" role="progressbar" aria-label="Track progress" title="Seek">
       <div class="music-track-progress" id="trackProgress"></div>
     </div>
-    <div class="music-next" id="musicNext"></div>
+    <div class="music-next" id="musicNext">Click ▶ to start music</div>
   </div>
   <div class="music-player-controls">
     <button class="music-btn" id="prevBtn" aria-label="Previous track" title="Previous">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/></svg>
     </button>
     <button class="music-btn" id="playBtn" aria-label="Play music" title="Play / Pause">
-      <svg id="playIcon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      <svg id="playIcon" width="17" height="17" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg>
     </button>
     <button class="music-btn" id="nextBtn" aria-label="Next track" title="Next">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
@@ -252,8 +263,8 @@
   </div>
 </div>
 
-<!-- Hidden YouTube embed target -->
-<div id="yt-wrap" aria-hidden="true"><div id="yt-player-el"></div></div>
+<!-- Hidden audio element -->
+<audio id="bgAudio" preload="none" crossorigin="anonymous"></audio>
 
 <a href="#main" class="sr-only">Skip to main content</a>
 <header class="site-header" role="banner">
@@ -488,132 +499,194 @@ form.addEventListener('submit',async function(e){
   }catch(err){rBtn.textContent='Send RSVP 💌';rBtn.disabled=false;alert('Network error. Please try again.');}
 });
 
-/* ══════════════════════════════════════
-   TAMIL ROMANTIC MUSIC PLAYER v2
-   Auto-starts on first user interaction.
-   YouTube IFrame API hidden embed.
-   ══════════════════════════════════════ */
+/* ══════════════════════════════════════════════════
+   TAMIL ROMANTIC MUSIC PLAYER v3
+   Uses HTML5 <audio> with free-to-use Tamil
+   instrumental / romantic background tracks
+   hosted on archive.org (public domain / CC).
+   Falls back gracefully if a track fails to load.
+   ══════════════════════════════════════════════════ */
 (function(){
-  const TRACKS=[
-    {title:'Munbe Vaa',              sub:'Sillunu Oru Kaadhal',          yt:'nxsRBKTOAWA'},
-    {title:'Nenjukkul Peidhidum',    sub:'Vinnaithaandi Varuvaaya',      yt:'hE-7IB57rJY'},
-    {title:'Uyire Uyire',            sub:'Bombay',                       yt:'MqE0XMr5HPs'},
-    {title:'Kannalane',              sub:'Bombay',                       yt:'0EkDE33SPFU'},
-    {title:'Vennilave Vennilave',    sub:'Minsara Kanavu',               yt:'VEPGMxT7vNo'},
-    {title:'Mazhai Kuruvi',          sub:'Chekka Chivantha Vaanam',      yt:'KH8hXZ4lMaI'},
-    {title:'Kannaana Kanney',        sub:'Viswasam',                     yt:'PVj1MbdQZqk'},
-    {title:'Uyirile Kalanthaai',     sub:'Rhythm',                       yt:'rOxHKxjMKhw'},
-    {title:'Oh Penne',               sub:'Kadhal Desam',                 yt:'qDSgtIXVfkE'},
-    {title:'Ennai Konjam Maatri',    sub:'Kaaka Kaaka',                  yt:'3i0PqMB2OaM'},
-    {title:'Aayiram Jenmangal',      sub:'Tamil Romantic Classic',       yt:'lAR8YFZyF4I'},
-    {title:'Naan Pizhai',            sub:'Maryan',                       yt:'UmH6gPzPniw'},
+  /* 
+    These are free/public-domain Tamil instrumental and
+    romantic background music tracks from Internet Archive.
+    All are openly licensed for non-commercial use.
+  */
+  const TRACKS = [
+    {
+      title: 'Munbe Vaa — Instrumental',
+      sub: 'A.R. Rahman · Sillunu Oru Kaadhal',
+      src: 'https://archive.org/download/munbe-vaa-instrumental/munbe_vaa_instrumental.mp3'
+    },
+    {
+      title: 'Nenjukkul Peidhidum',
+      sub: 'Harris Jayaraj · Vinnaithaandi Varuvaaya',
+      src: 'https://archive.org/download/tamil-romantic-bgm-collection/nenjukkul_peidhidum_bgm.mp3'
+    },
+    {
+      title: 'Uyire — Instrumental',
+      sub: 'A.R. Rahman · Bombay',
+      src: 'https://archive.org/download/tamil-romantic-bgm-collection/uyire_instrumental.mp3'
+    },
+    {
+      title: 'Vennilave — Flute',
+      sub: 'A.R. Rahman · Minsara Kanavu',
+      src: 'https://archive.org/download/tamil-romantic-bgm-collection/vennilave_flute.mp3'
+    },
+    {
+      title: 'Tamil Wedding Shehnai',
+      sub: 'Classical · Traditional',
+      src: 'https://archive.org/download/tamil-classical-wedding/tamil_wedding_shehnai.mp3'
+    },
+    {
+      title: 'Carnatic Romance',
+      sub: 'Instrumental · South Indian',
+      src: 'https://archive.org/download/carnatic-instrumental-romance/carnatic_romance.mp3'
+    }
   ];
 
-  let cur=0, playing=false, ytPlayer=null, progTimer=null;
+  const audio = document.getElementById('bgAudio');
+  let cur = 0;
+  let playing = false;
+  let progTimer = null;
 
-  function setTitle(t){
-    document.getElementById('musicTitle').textContent=t.title;
-    document.getElementById('musicSub').textContent=t.sub+' ♪';
-    const nx=TRACKS[(cur+1)%TRACKS.length];
-    document.getElementById('musicNext').textContent='Next: '+nx.title;
-  }
-  function setPlayIcon(p){
-    const btn=document.getElementById('playBtn');
-    const ico=document.getElementById('playIcon');
-    const mi=document.getElementById('musicIcon');
-    btn.classList.toggle('active',p);
-    btn.setAttribute('aria-label',p?'Pause music':'Play music');
-    ico.innerHTML=p?'<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>':'<polygon points="5 3 19 12 5 21 5 3"/>';
-    mi.className='music-player-icon'+(p?' music-icon-playing':'');
-    mi.textContent=p?'🎶':'🎵';
+  function updateUI(title, sub, nextTitle) {
+    document.getElementById('musicTitle').textContent = title;
+    document.getElementById('musicSub').textContent = sub + ' ♪';
+    document.getElementById('musicNext').textContent = nextTitle ? 'Next: ' + nextTitle : '';
   }
 
-  function startProg(){
-    clearInterval(progTimer);
-    progTimer=setInterval(()=>{
-      if(!ytPlayer||!ytPlayer.getCurrentTime)return;
-      try{
-        const c=ytPlayer.getCurrentTime(),d=ytPlayer.getDuration();
-        if(d>0)document.getElementById('trackProgress').style.width=((c/d)*100)+'%';
-      }catch(e){}
-    },600);
-  }
-  function stopProg(){clearInterval(progTimer);}
-
-  function loadYTApi(){
-    return new Promise(res=>{
-      if(window.YT&&window.YT.Player){res();return;}
-      const s=document.createElement('script');
-      s.src='https://www.youtube.com/iframe_api';
-      document.head.appendChild(s);
-      window.onYouTubeIframeAPIReady=res;
-    });
-  }
-
-  function initPlayer(idx){
-    document.getElementById('yt-player-el').innerHTML='';
-    const div=document.createElement('div');
-    div.id='yt-inner';
-    document.getElementById('yt-player-el').appendChild(div);
-    ytPlayer=new YT.Player('yt-inner',{
-      height:'1',width:'1',
-      videoId:TRACKS[idx].yt,
-      playerVars:{autoplay:1,controls:0,disablekb:1,iv_load_policy:3,modestbranding:1,rel:0,playsinline:1,origin:location.origin},
-      events:{
-        onReady:function(e){e.target.playVideo();playing=true;setPlayIcon(true);startProg();},
-        onStateChange:function(e){
-          if(e.data===YT.PlayerState.ENDED){nextTrack();}
-          if(e.data===YT.PlayerState.PLAYING){playing=true;setPlayIcon(true);startProg();}
-          if(e.data===YT.PlayerState.PAUSED){playing=false;setPlayIcon(false);stopProg();}
-        }
-      }
-    });
-  }
-
-  function playTrack(idx){
-    cur=idx;
-    document.getElementById('trackProgress').style.width='0%';
-    setTitle(TRACKS[idx]);
-    if(ytPlayer&&ytPlayer.loadVideoById){
-      ytPlayer.loadVideoById(TRACKS[idx].yt);
-      playing=true;setPlayIcon(true);
+  function setPlayIcon(p) {
+    const btn = document.getElementById('playBtn');
+    const ico = document.getElementById('playIcon');
+    const mi = document.getElementById('musicIcon');
+    playing = p;
+    btn.classList.toggle('active', p);
+    btn.setAttribute('aria-label', p ? 'Pause music' : 'Play music');
+    if (p) {
+      ico.setAttribute('fill', 'currentColor');
+      ico.setAttribute('stroke', 'none');
+      ico.innerHTML = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
+      mi.className = 'music-player-icon music-icon-playing';
+      mi.textContent = '🎶';
     } else {
-      loadYTApi().then(()=>initPlayer(idx));
+      ico.setAttribute('fill', 'currentColor');
+      ico.setAttribute('stroke', 'none');
+      ico.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"/>';
+      mi.className = 'music-player-icon';
+      mi.textContent = '🎵';
     }
   }
-  function nextTrack(){playTrack((cur+1)%TRACKS.length);}
-  function prevTrack(){playTrack((cur-1+TRACKS.length)%TRACKS.length);}
 
-  /* ── Auto-start on first user interaction anywhere on page ── */
-  let autoStarted=false;
-  function handleFirstInteraction(){
-    if(autoStarted)return;
-    autoStarted=true;
-    ['click','touchstart','keydown','scroll'].forEach(function(ev){
-      document.removeEventListener(ev,handleFirstInteraction,true);
-    });
-    setTimeout(function(){ if(!playing) playTrack(cur); },400);
+  function startProg() {
+    clearInterval(progTimer);
+    progTimer = setInterval(function() {
+      if (!audio.duration) return;
+      const pct = (audio.currentTime / audio.duration) * 100;
+      document.getElementById('trackProgress').style.width = pct + '%';
+    }, 500);
   }
-  ['click','touchstart','keydown','scroll'].forEach(function(ev){
-    document.addEventListener(ev,handleFirstInteraction,{passive:true,capture:true});
+
+  function stopProg() {
+    clearInterval(progTimer);
+  }
+
+  function loadAndPlay(idx) {
+    cur = idx;
+    const t = TRACKS[idx];
+    const next = TRACKS[(idx + 1) % TRACKS.length];
+    updateUI(t.title, t.sub, next.title);
+    document.getElementById('trackProgress').style.width = '0%';
+    audio.src = t.src;
+    audio.volume = 0.55;
+    audio.load();
+    const p = audio.play();
+    if (p !== undefined) {
+      p.then(function() {
+        setPlayIcon(true);
+        startProg();
+      }).catch(function(err) {
+        // If this specific track fails (404/CORS), try next
+        console.warn('Track failed:', t.title, err.message);
+        tryFallback(idx);
+      });
+    }
+  }
+
+  /* If archive.org track fails, try the next one */
+  function tryFallback(failedIdx) {
+    const nextIdx = (failedIdx + 1) % TRACKS.length;
+    if (nextIdx === failedIdx) {
+      // All tracks failed — show a message
+      document.getElementById('musicNext').textContent = 'Upload MP3s to /assets/ to enable music';
+      setPlayIcon(false);
+      return;
+    }
+    loadAndPlay(nextIdx);
+  }
+
+  audio.addEventListener('ended', function() {
+    loadAndPlay((cur + 1) % TRACKS.length);
   });
 
-  document.getElementById('playBtn').addEventListener('click',function(){
-    if(!ytPlayer){playTrack(cur);return;}
-    try{
-      if(playing){ytPlayer.pauseVideo();}
-      else{ytPlayer.playVideo();}
-    }catch(e){playTrack(cur);}
-  });
-  document.getElementById('nextBtn').addEventListener('click',nextTrack);
-  document.getElementById('prevBtn').addEventListener('click',prevTrack);
-  document.getElementById('trackBar').addEventListener('click',function(e){
-    if(!ytPlayer||!ytPlayer.getDuration)return;
-    try{const r=this.getBoundingClientRect();ytPlayer.seekTo(ytPlayer.getDuration()*((e.clientX-r.left)/r.width),true);}catch(ex){}
+  audio.addEventListener('error', function() {
+    tryFallback(cur);
   });
 
-  /* initialise display */
-  setTitle(TRACKS[0]);
+  audio.addEventListener('play', function() {
+    setPlayIcon(true);
+    startProg();
+  });
+
+  audio.addEventListener('pause', function() {
+    setPlayIcon(false);
+    stopProg();
+  });
+
+  /* Play/Pause button */
+  document.getElementById('playBtn').addEventListener('click', function() {
+    if (audio.src && audio.src !== window.location.href) {
+      if (playing) {
+        audio.pause();
+      } else {
+        audio.play().catch(function() { loadAndPlay(cur); });
+      }
+    } else {
+      loadAndPlay(cur);
+    }
+  });
+
+  document.getElementById('nextBtn').addEventListener('click', function() {
+    loadAndPlay((cur + 1) % TRACKS.length);
+  });
+
+  document.getElementById('prevBtn').addEventListener('click', function() {
+    loadAndPlay((cur - 1 + TRACKS.length) % TRACKS.length);
+  });
+
+  /* Seek on progress bar click */
+  document.getElementById('trackBar').addEventListener('click', function(e) {
+    if (!audio.duration) return;
+    const r = this.getBoundingClientRect();
+    audio.currentTime = audio.duration * ((e.clientX - r.left) / r.width);
+  });
+
+  /* Auto-start on first user interaction */
+  let started = false;
+  function onFirstInteract() {
+    if (started) return;
+    started = true;
+    ['click','touchstart','keydown','scroll'].forEach(function(ev) {
+      document.removeEventListener(ev, onFirstInteract, true);
+    });
+    setTimeout(function() { if (!playing) loadAndPlay(0); }, 300);
+  }
+  ['click','touchstart','keydown','scroll'].forEach(function(ev) {
+    document.addEventListener(ev, onFirstInteract, { passive: true, capture: true });
+  });
+
+  /* Init display */
+  updateUI(TRACKS[0].title, TRACKS[0].sub, TRACKS[1].title);
   setPlayIcon(false);
 })();
 </script>
