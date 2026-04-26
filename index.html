@@ -93,8 +93,8 @@
     .music-btn{background:none;border:none;cursor:pointer;color:var(--color-text-muted);padding:var(--space-1);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;}
     .music-btn:hover{color:var(--color-primary);background:var(--color-primary-soft);}
     .music-btn.active{color:var(--color-primary);}
-    /* Hidden YouTube player container */
-    #yt-player-container{position:fixed;bottom:-200px;right:-200px;width:1px;height:1px;overflow:hidden;pointer-events:none;opacity:0;}
+    /* Hidden YouTube iframe — off-screen, invisible to user */
+    #yt-player-wrap{position:fixed;bottom:-300px;right:-300px;width:1px;height:1px;pointer-events:none;opacity:0;overflow:hidden;}
 
     .fade-in{opacity:1;}
     @supports(animation-timeline:scroll()){
@@ -227,8 +227,8 @@
 </head>
 <body>
 
-<!-- ── Invisible YouTube IFrame Player (hidden off-screen) ── -->
-<div id="yt-player-container">
+<!-- ── YouTube IFrame hidden off-screen (audio source) ── -->
+<div id="yt-player-wrap">
   <div id="yt-player"></div>
 </div>
 
@@ -237,11 +237,11 @@
   <span class="music-player-icon" id="musicIcon">🎵</span>
   <div class="music-player-info">
     <div class="music-player-title" id="musicTitle">Tamil Romantic</div>
-    <div class="music-player-sub" id="musicSub">♪ Click ▶ to start</div>
-    <div class="music-track-bar" id="trackBar" title="Progress">
+    <div class="music-player-sub" id="musicSub">♪ Press ▶ to start</div>
+    <div class="music-track-bar" id="trackBar" title="Track progress">
       <div class="music-track-progress" id="trackProgress"></div>
     </div>
-    <div class="music-next" id="musicNext">🎶 Wedding music</div>
+    <div class="music-next" id="musicNext">🎶 Wedding background music</div>
   </div>
   <div class="music-player-controls">
     <button class="music-btn" id="prevBtn" aria-label="Previous track" title="Previous">
@@ -491,23 +491,22 @@ form.addEventListener('submit',async function(e){
 
 /* ══════════════════════════════════════════════════
    TAMIL ROMANTIC MUSIC PLAYER
-   Uses YouTube IFrame API — the only 100% reliable
-   way to play music on a static website.
-   The player is hidden off-screen; only the widget UI is visible.
-   Songs play as audio-only (no video visible to user).
+   Uses YouTube IFrame API — 100% reliable on any
+   static site / GitHub Pages. The video plays hidden
+   off-screen; only the floating widget UI is visible.
+   Autoplay triggers on first user interaction to
+   comply with browser autoplay policies.
    ══════════════════════════════════════════════════ */
 (function(){
-  // Tamil romantic songs — real YouTube video IDs
-  // These are well-known official/popular uploads
   var TRACKS = [
-    { title: 'Munbe Vaa',          sub: 'A.R. Rahman · Sillunu Oru Kaadhal', id: 'wbItLAFbNsA' },
-    { title: 'Nenjukkul Peidhidum',sub: 'Harris Jayaraj · VTV',              id: 'Y5B1EZBGE7g' },
-    { title: 'Uyire Uyire',        sub: 'A.R. Rahman · Bombay',              id: 'VwHqfhDfysc' },
-    { title: 'Vennilave Vennilave',sub: 'A.R. Rahman · Minsara Kanavu',      id: 'oOLBMiSxV8A' },
-    { title: 'Mazhai Kuruvi',      sub: 'A.R. Rahman · Chekka Chivantha',    id: 'Yf6M5d0VEiI' },
-    { title: 'Kannana Kanney',     sub: 'D. Imman · Viswasam',               id: '4ry_6HQBSWQ' },
-    { title: 'Oh Penne',           sub: 'A.R. Rahman · Kadhal Desam',        id: 'GfDqb9HBiqk' },
-    { title: 'Ennai Konjam',       sub: 'Harris Jayaraj · Kaaka Kaaka',      id: 'EJRjBEHYKpI' }
+    { title: 'Munbe Vaa',           sub: 'A.R. Rahman · Sillunu Oru Kaadhal', id: 'wbItLAFbNsA' },
+    { title: 'Nenjukkul Peidhidum', sub: 'Harris Jayaraj · VTV',              id: 'Y5B1EZBGE7g' },
+    { title: 'Uyire Uyire',         sub: 'A.R. Rahman · Bombay',              id: 'VwHqfhDfysc' },
+    { title: 'Vennilave Vennilave', sub: 'A.R. Rahman · Minsara Kanavu',      id: 'oOLBMiSxV8A' },
+    { title: 'Mazhai Kuruvi',       sub: 'A.R. Rahman · Chekka Chivantha',    id: 'Yf6M5d0VEiI' },
+    { title: 'Kannaana Kanney',     sub: 'D. Imman · Viswasam',               id: '4ry_6HQBSWQ' },
+    { title: 'Oh Penne',            sub: 'A.R. Rahman · Kadhal Desam',        id: 'GfDqb9HBiqk' },
+    { title: 'Ennai Konjam',        sub: 'Harris Jayaraj · Kaaka Kaaka',      id: 'EJRjBEHYKpI' }
   ];
 
   var ytPlayer = null;
@@ -516,13 +515,15 @@ form.addEventListener('submit',async function(e){
   var progTimer = null;
   var ytReady = false;
   var pendingPlay = false;
+  var interacted = false;
 
-  // Load YouTube IFrame API script
+  /* Inject YouTube IFrame API */
   var tag = document.createElement('script');
   tag.src = 'https://www.youtube.com/iframe_api';
-  document.head.appendChild(tag);
+  var firstScript = document.getElementsByTagName('script')[0];
+  firstScript.parentNode.insertBefore(tag, firstScript);
 
-  // Called by YouTube API when ready
+  /* YouTube API callback */
   window.onYouTubeIframeAPIReady = function() {
     ytReady = true;
     ytPlayer = new YT.Player('yt-player', {
@@ -536,17 +537,17 @@ form.addEventListener('submit',async function(e){
         fs: 0,
         iv_load_policy: 3,
         modestbranding: 1,
+        playsinline: 1,
         rel: 0,
-        origin: window.location.origin || 'https://sachi7899.github.io'
+        origin: window.location.origin
       },
       events: {
         onReady: function(e) {
           e.target.setVolume(55);
           updateUI();
-          if (pendingPlay) { playTrack(cur); }
+          if (pendingPlay) { setTimeout(function(){ doPlay(); }, 200); }
         },
         onStateChange: function(e) {
-          // YT.PlayerState.PLAYING = 1, PAUSED = 2, ENDED = 0
           if (e.data === YT.PlayerState.PLAYING) {
             setPlayIcon(true);
             startProg();
@@ -558,19 +559,17 @@ form.addEventListener('submit',async function(e){
           }
         },
         onError: function() {
-          // Skip errored video and try next
+          /* Skip bad video, try next */
           loadAndPlay((cur + 1) % TRACKS.length);
         }
       }
     });
   };
 
-  function playTrack(idx) {
-    if (!ytPlayer || !ytPlayer.loadVideoById) return;
-    cur = idx;
-    updateUI();
-    ytPlayer.loadVideoById(TRACKS[idx].id);
-    ytPlayer.playVideo();
+  function doPlay() {
+    if (ytPlayer && ytPlayer.playVideo) {
+      ytPlayer.playVideo();
+    }
   }
 
   function loadAndPlay(idx) {
@@ -595,15 +594,15 @@ form.addEventListener('submit',async function(e){
     playing = p;
     var btn = document.getElementById('playBtn');
     var mi  = document.getElementById('musicIcon');
+    var ico = document.getElementById('playIcon');
     btn.classList.toggle('active', p);
     btn.setAttribute('aria-label', p ? 'Pause music' : 'Play music');
-    var iconWrap = document.getElementById('playIcon');
     if (p) {
-      iconWrap.innerHTML = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
+      ico.innerHTML = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
       mi.className = 'music-player-icon music-icon-playing';
       mi.textContent = '🎶';
     } else {
-      iconWrap.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"/>';
+      ico.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"/>';
       mi.className = 'music-player-icon';
       mi.textContent = '🎵';
     }
@@ -614,7 +613,7 @@ form.addEventListener('submit',async function(e){
     progTimer = setInterval(function() {
       if (!ytPlayer || !ytPlayer.getDuration) return;
       var dur = ytPlayer.getDuration();
-      var ct  = ytPlayer.getCurrentTime();
+      var ct  = ytPlayer.getCurrentTime ? ytPlayer.getCurrentTime() : 0;
       if (dur > 0) {
         document.getElementById('trackProgress').style.width = ((ct / dur) * 100) + '%';
       }
@@ -623,19 +622,17 @@ form.addEventListener('submit',async function(e){
 
   function stopProg() { clearInterval(progTimer); }
 
-  // Play/Pause button
+  /* Play/Pause button */
   document.getElementById('playBtn').addEventListener('click', function() {
-    if (!ytReady || !ytPlayer) {
-      pendingPlay = true;
-      return;
-    }
+    if (!ytReady || !ytPlayer) { pendingPlay = true; return; }
     if (playing) {
       ytPlayer.pauseVideo();
     } else {
-      if (ytPlayer.getPlayerState && ytPlayer.getPlayerState() === -1) {
-        playTrack(cur);
+      var state = ytPlayer.getPlayerState ? ytPlayer.getPlayerState() : -1;
+      if (state === -1 || state === YT.PlayerState.UNSTARTED) {
+        loadAndPlay(cur);
       } else {
-        ytPlayer.playVideo();
+        doPlay();
       }
     }
   });
@@ -648,7 +645,7 @@ form.addEventListener('submit',async function(e){
     loadAndPlay((cur - 1 + TRACKS.length) % TRACKS.length);
   });
 
-  // Progress bar seek
+  /* Progress bar seek */
   document.getElementById('trackBar').addEventListener('click', function(e) {
     if (!ytPlayer || !ytPlayer.getDuration) return;
     var dur = ytPlayer.getDuration();
@@ -657,16 +654,15 @@ form.addEventListener('submit',async function(e){
     ytPlayer.seekTo(dur * ((e.clientX - rect.left) / rect.width), true);
   });
 
-  // Auto-start on first user interaction
-  var started = false;
+  /* Auto-start on first user interaction */
   function onFirstInteract() {
-    if (started) return;
-    started = true;
+    if (interacted) return;
+    interacted = true;
     ['click','touchstart','keydown','scroll'].forEach(function(ev) {
       document.removeEventListener(ev, onFirstInteract, true);
     });
     if (ytReady && ytPlayer) {
-      setTimeout(function(){ playTrack(0); }, 300);
+      setTimeout(function(){ loadAndPlay(0); }, 400);
     } else {
       pendingPlay = true;
     }
@@ -675,8 +671,10 @@ form.addEventListener('submit',async function(e){
     document.addEventListener(ev, onFirstInteract, { passive: true, capture: true });
   });
 
-  // Init display
+  /* Init UI */
   updateUI();
+  document.getElementById('musicSub').textContent = '♪ Press ▶ to start';
+  document.getElementById('musicNext').textContent = '🎶 Tamil romantic music';
 })();
 </script>
 </body>
