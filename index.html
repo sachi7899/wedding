@@ -97,7 +97,6 @@
       font-size:var(--text-sm);font-weight:500;color:var(--color-text);
       white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px;
     }
-    #music-track-name.no-track{color:var(--color-text-faint);font-style:italic;}
     .music-controls{
       display:flex;align-items:center;gap:var(--space-2);
     }
@@ -127,12 +126,6 @@
     }
     .music-times{display:flex;justify-content:space-between;font-size:var(--text-xs);color:var(--color-text-faint);}
     .music-divider{height:1px;background:oklch(from var(--color-text) l c h/0.08);margin:var(--space-1) 0;}
-    .music-upload-hint{
-      font-size:var(--text-xs);color:var(--color-text-faint);
-      text-align:center;line-height:1.6;
-    }
-    .music-upload-hint a{color:var(--color-primary);text-decoration:none;}
-    .music-upload-hint a:hover{text-decoration:underline;}
 
     #bgm-btn{
       position:relative;
@@ -151,7 +144,6 @@
     #bgm-btn.playing{animation:bgmPulse 2.4s ease-in-out infinite;}
     @keyframes bgmPulse{0%,100%{box-shadow:0 0 0 0 oklch(from var(--color-primary) l c h/0.4),var(--shadow-lg);}70%{box-shadow:0 0 0 10px oklch(from var(--color-primary) l c h/0),var(--shadow-lg);}}
 
-    /* music note bars animation */
     .music-bars{display:flex;align-items:flex-end;gap:2px;height:18px;}
     .music-bars span{
       display:block;width:3px;border-radius:2px;
@@ -169,20 +161,6 @@
     @keyframes bar2{0%,100%{height:12px;}50%{height:5px;}}
     @keyframes bar3{0%,100%{height:6px;}50%{height:16px;}}
     @keyframes bar4{0%,100%{height:14px;}50%{height:4px;}}
-
-    /* autoplay tap-to-start hint */
-    #tap-hint{
-      position:fixed;bottom:calc(var(--space-6) + 64px);right:var(--space-6);z-index:199;
-      background:var(--color-primary);color:#fff;
-      font-size:var(--text-xs);font-weight:500;letter-spacing:.05em;
-      padding:var(--space-2) var(--space-4);
-      border-radius:var(--radius-full);
-      box-shadow:var(--shadow-md);
-      opacity:0;pointer-events:none;
-      transition:opacity .4s ease;
-      white-space:nowrap;
-    }
-    #tap-hint.show{opacity:1;}
 
     .fade-in{opacity:1;}
     @supports(animation-timeline:scroll()){
@@ -342,13 +320,10 @@
 </head>
 <body>
 
-<!-- ── MUSIC: tamil_vinay_bgm.mp3 uploaded to assets/ ── -->
-<audio id="bgm-audio" loop preload="auto">
+<!-- BGM — autoplay + loop -->
+<audio id="bgm-audio" loop preload="auto" autoplay>
   <source src="https://raw.githubusercontent.com/sachi7899/wedding/main/assets/tamil_vinay_bgm.mp3" type="audio/mpeg">
 </audio>
-
-<!-- tap-to-start hint shown only when browser blocks autoplay -->
-<div id="tap-hint" aria-hidden="true">🎵 Tap anywhere to play music</div>
 
 <!-- ── FLOATING MUSIC PLAYER ── -->
 <div id="music-widget" aria-label="Music player">
@@ -357,7 +332,7 @@
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
       Background Music
     </div>
-    <div id="music-track-name">♪ Tamil Vinay BGM</div>
+    <div id="music-track-name">&#9834; Tamil Vinay BGM</div>
     <input type="range" id="music-progress" min="0" max="100" value="0" aria-label="Playback progress">
     <div class="music-times">
       <span id="music-cur">0:00</span>
@@ -428,19 +403,19 @@
   <div class="hero-bg" aria-hidden="true"></div>
   <div class="hero-floral" aria-hidden="true"></div>
   <div class="hero-inner">
-    <p class="hero-eyebrow">❖ &nbsp; Together we begin &nbsp; ❖</p>
+    <p class="hero-eyebrow">&#10070; &nbsp; Together we begin &nbsp; &#10070;</p>
     <h1 class="hero-names">Sachin<span class="amp">&amp;</span>Ardra</h1>
     <div class="hero-illustration-wrap">
-      <span class="heart-pop" aria-hidden="true">💕</span>
-      <span class="heart-pop" aria-hidden="true">🌸</span>
-      <span class="heart-pop" aria-hidden="true">💛</span>
+      <span class="heart-pop" aria-hidden="true">&#128149;</span>
+      <span class="heart-pop" aria-hidden="true">&#127800;</span>
+      <span class="heart-pop" aria-hidden="true">&#128155;</span>
       <div class="hero-illustration" aria-label="Sachin and Ardra">
         <img src="https://raw.githubusercontent.com/sachi7899/wedding/main/assets/DSC04848.JPG" alt="Sachin and Ardra together" width="280" height="360" loading="eager" onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/sachi7899/wedding/main/assets/sachin-ardra.jpg.JPG';" />
       </div>
     </div>
-    <div class="divider-ornament" style="margin:var(--space-5) auto;" aria-hidden="true"><div class="divider-ornament-inner">❧</div></div>
+    <div class="divider-ornament" style="margin:var(--space-5) auto;" aria-hidden="true"><div class="divider-ornament-inner">&#10087;</div></div>
     <p class="hero-date">September 5 &amp; 6, 2026</p>
-    <p class="hero-location">Guruvayoor &nbsp;·&nbsp; Pattambi &nbsp;·&nbsp; Palakkad, Kerala</p>
+    <p class="hero-location">Guruvayoor &nbsp;&middot;&nbsp; Pattambi &nbsp;&middot;&nbsp; Palakkad, Kerala</p>
     <a href="#rsvp" class="btn-cta">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
       Send Your RSVP
@@ -473,9 +448,9 @@
           <p class="section-eyebrow">Our Journey</p>
           <h2 class="section-title">A love story written in<br><em>Kerala's warmth</em></h2>
         </div>
-        <div class="divider-ornament" style="margin:0;" aria-hidden="true"><div class="divider-ornament-inner">❖</div></div>
-        <p class="section-body">From the golden paddy fields of Nallepilly to the heart of Pattambi — our paths found each other in the most beautiful way. Two souls, one shared love for the people and places of Kerala, and a lifetime of moments waiting to be created together.</p>
-        <p class="section-body">We invite you — our cherished family and friends — to witness and bless our union as we begin this beautiful new chapter. Your presence and blessings mean the world to us.</p>
+        <div class="divider-ornament" style="margin:0;" aria-hidden="true"><div class="divider-ornament-inner">&#10070;</div></div>
+        <p class="section-body">From the golden paddy fields of Nallepilly to the heart of Pattambi &mdash; our paths found each other in the most beautiful way. Two souls, one shared love for the people and places of Kerala, and a lifetime of moments waiting to be created together.</p>
+        <p class="section-body">We invite you &mdash; our cherished family and friends &mdash; to witness and bless our union as we begin this beautiful new chapter. Your presence and blessings mean the world to us.</p>
       </div>
       <div class="story-img-wrap">
         <div class="story-img-frame">
@@ -498,25 +473,25 @@
     </header>
     <div class="events-grid">
       <article class="event-card fade-in">
-        <span class="event-icon" aria-hidden="true">🌺</span>
+        <span class="event-icon" aria-hidden="true">&#127802;</span>
         <h3 class="event-name">Wedding Function</h3>
-        <p class="event-meta"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> September 5, 2026 · Morning</p>
+        <p class="event-meta"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> September 5, 2026 &middot; Morning</p>
         <p class="event-meta"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> Pattambi, Palakkad District</p>
         <p class="event-desc">A sacred gathering of families and friends, united to seek the blessings of our elders and loved ones.</p>
       </article>
       <article class="event-card fade-in">
-        <span class="event-icon" aria-hidden="true">🪔</span>
+        <span class="event-icon" aria-hidden="true">&#129486;</span>
         <h3 class="event-name">Wedding Ceremony</h3>
-        <p class="event-meta"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> September 5, 2026 · Morning</p>
+        <p class="event-meta"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> September 5, 2026 &middot; Morning</p>
         <p class="event-meta"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> Guruvayoor Sri Krishna Temple</p>
-        <p class="event-desc">A divine traditional ceremony at the sacred Guruvayoor temple — where the blessings of Lord Krishna will consecrate our bond.</p>
+        <p class="event-desc">A divine traditional ceremony at the sacred Guruvayoor temple &mdash; where the blessings of Lord Krishna will consecrate our bond.</p>
       </article>
       <article class="event-card fade-in">
-        <span class="event-icon" aria-hidden="true">🎊</span>
+        <span class="event-icon" aria-hidden="true">&#127882;</span>
         <h3 class="event-name">Wedding Reception</h3>
-        <p class="event-meta"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> September 6, 2026 · Evening</p>
+        <p class="event-meta"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> September 6, 2026 &middot; Evening</p>
         <p class="event-meta"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> Palakkad (SA convention center Nallepilly)</p>
-        <p class="event-desc">An evening of feasting, music, dance and heartfelt celebration — a joyful night to remember with all our loved ones.</p>
+        <p class="event-desc">An evening of feasting, music, dance and heartfelt celebration &mdash; a joyful night to remember with all our loved ones.</p>
       </article>
     </div>
   </div>
@@ -557,24 +532,24 @@
     </header>
     <div class="travel-grid">
       <div class="travel-card">
-        <h3 class="travel-card-title">✈️ Nearest Airport</h3>
+        <h3 class="travel-card-title">&#9992;&#65039; Nearest Airport</h3>
         <p class="travel-card-body">Calicut International Airport (CCJ) ~80 km from Palakkad. Coimbatore Airport (CJB) ~55 km via Tamil Nadu.</p>
-        <a href="https://maps.google.com/?q=Calicut+International+Airport" target="_blank" rel="noopener noreferrer" class="map-btn">📍 Open Map</a>
+        <a href="https://maps.google.com/?q=Calicut+International+Airport" target="_blank" rel="noopener noreferrer" class="map-btn">&#128205; Open Map</a>
       </div>
       <div class="travel-card">
-        <h3 class="travel-card-title">🚂 By Train</h3>
+        <h3 class="travel-card-title">&#128642; By Train</h3>
         <p class="travel-card-body">Palakkad Junction (PGT) is well connected. For Pattambi, Shoranur Junction (SRR) is nearest (~8 km).</p>
-        <a href="https://maps.google.com/?q=Palakkad+Junction+Railway+Station" target="_blank" rel="noopener noreferrer" class="map-btn">📍 Open Map</a>
+        <a href="https://maps.google.com/?q=Palakkad+Junction+Railway+Station" target="_blank" rel="noopener noreferrer" class="map-btn">&#128205; Open Map</a>
       </div>
       <div class="travel-card">
-        <h3 class="travel-card-title">🏨 Stay in Palakkad</h3>
+        <h3 class="travel-card-title">&#127970; Stay in Palakkad</h3>
         <p class="travel-card-body">Kalpaka Tourist Home, Indraprastha Hotel, and Fort Palace Hotel are comfortable options near the reception venue.</p>
-        <a href="https://maps.google.com/?q=hotels+in+Palakkad" target="_blank" rel="noopener noreferrer" class="map-btn">📍 Search Hotels</a>
+        <a href="https://maps.google.com/?q=hotels+in+Palakkad" target="_blank" rel="noopener noreferrer" class="map-btn">&#128205; Search Hotels</a>
       </div>
       <div class="travel-card">
-        <h3 class="travel-card-title">🛕 Stay in Guruvayoor</h3>
+        <h3 class="travel-card-title">&#128701; Stay in Guruvayoor</h3>
         <p class="travel-card-body">Dedicated guest houses near the temple. Book well in advance as rooms fill quickly on auspicious dates.</p>
-        <a href="https://maps.google.com/?q=hotels+in+Guruvayoor" target="_blank" rel="noopener noreferrer" class="map-btn">📍 Search Hotels</a>
+        <a href="https://maps.google.com/?q=hotels+in+Guruvayoor" target="_blank" rel="noopener noreferrer" class="map-btn">&#128205; Search Hotels</a>
       </div>
     </div>
   </div>
@@ -584,10 +559,10 @@
   <div class="container">
     <p class="section-eyebrow" style="text-align:center;">You're Invited</p>
     <h2 class="section-title" style="text-align:center;margin-bottom:var(--space-2);">Will You <em>Join Us?</em></h2>
-    <p class="section-body" style="text-align:center;margin:0 auto var(--space-8);">Let us know — your presence is the greatest gift of all.</p>
+    <p class="section-body" style="text-align:center;margin:0 auto var(--space-8);">Let us know &mdash; your presence is the greatest gift of all.</p>
     <div class="rsvp-card">
       <form id="rsvp-form" action="https://formspree.io/f/YOUR_FORM_ID" method="POST" novalidate>
-        <input type="hidden" name="_subject" value="💌 New RSVP — Sachin &amp; Ardra Wedding"/>
+        <input type="hidden" name="_subject" value="&#128140; New RSVP — Sachin &amp; Ardra Wedding"/>
         <input type="hidden" name="_replyto" value="s17.sachin96@gmail.com"/>
         <div class="form-group">
           <label class="form-label" for="r-name">Full Name *</label>
@@ -604,8 +579,8 @@
         <div class="form-group">
           <label class="form-label" for="r-attend">Will you attend? *</label>
           <select class="form-input" id="r-attend" name="attending" required>
-            <option value="">Select…</option>
-            <option value="Yes — all events 🎉">Yes, all events! 🎉</option>
+            <option value="">Select&hellip;</option>
+            <option value="Yes — all events">Yes, all events! &#127881;</option>
             <option value="Yes — some events">Yes, some events</option>
             <option value="Sadly cannot attend">Sadly cannot attend</option>
           </select>
@@ -615,12 +590,12 @@
           <input class="form-input" type="number" id="r-guests" name="guests" min="1" max="10" value="1"/>
         </div>
         <div class="form-group">
-          <label class="form-label" for="r-msg">Wishes for the couple 💌</label>
-          <textarea class="form-input" id="r-msg" name="message" rows="3" placeholder="Share your heartfelt wishes…"></textarea>
+          <label class="form-label" for="r-msg">Wishes for the couple &#128140;</label>
+          <textarea class="form-input" id="r-msg" name="message" rows="3" placeholder="Share your heartfelt wishes&hellip;"></textarea>
         </div>
-        <button type="submit" class="btn-primary" id="rsvp-btn">Send RSVP 💌</button>
-        <div class="form-success" id="rsvp-success">✨ Thank you! Your RSVP has been received. Sachin &amp; Ardra can't wait to celebrate with you!</div>
-        <p class="formspree-note">⚠️ To activate RSVP emails, replace YOUR_FORM_ID with your Formspree ID.</p>
+        <button type="submit" class="btn-primary" id="rsvp-btn">Send RSVP &#128140;</button>
+        <div class="form-success" id="rsvp-success">&#10024; Thank you! Your RSVP has been received. Sachin &amp; Ardra can't wait to celebrate with you!</div>
+        <p class="formspree-note">&#9888;&#65039; To activate RSVP emails, replace YOUR_FORM_ID with your Formspree ID.</p>
       </form>
     </div>
   </div>
@@ -629,10 +604,10 @@
 </main>
 
 <footer class="site-footer" role="contentinfo">
-  <div class="divider-ornament" style="margin:0 auto var(--space-6);" aria-hidden="true"><div class="divider-ornament-inner">❧</div></div>
+  <div class="divider-ornament" style="margin:0 auto var(--space-6);" aria-hidden="true"><div class="divider-ornament-inner">&#10087;</div></div>
   <p class="footer-names">Sachin &amp; Ardra</p>
-  <p class="footer-sub" style="margin-top:var(--space-2);">September 5 &amp; 6, 2026 &nbsp;·&nbsp; Kerala, India</p>
-  <p class="footer-sub" style="margin-top:var(--space-6);font-size:var(--text-xs);">Made with ❤️ &nbsp;·&nbsp; Hosted on <a href="https://pages.github.com" target="_blank" rel="noopener noreferrer" style="color:var(--color-primary);text-decoration:none;">GitHub Pages</a></p>
+  <p class="footer-sub" style="margin-top:var(--space-2);">September 5 &amp; 6, 2026 &nbsp;&middot;&nbsp; Kerala, India</p>
+  <p class="footer-sub" style="margin-top:var(--space-6);font-size:var(--text-xs);">Made with &#10084;&#65039; &nbsp;&middot;&nbsp; Hosted on <a href="https://pages.github.com" target="_blank" rel="noopener noreferrer" style="color:var(--color-primary);text-decoration:none;">GitHub Pages</a></p>
 </footer>
 
 <script>
@@ -673,7 +648,7 @@ if(rsvpForm){
     btn.textContent='Sending…';btn.disabled=true;
     if(rsvpForm.getAttribute('action').includes('YOUR_FORM_ID')){
       e.preventDefault();
-      setTimeout(function(){document.getElementById('rsvp-success').style.display='block';btn.textContent='RSVP Sent 💌';},800);
+      setTimeout(function(){document.getElementById('rsvp-success').style.display='block';btn.textContent='RSVP Sent &#128140;';},800);
     }
   });
 }
@@ -690,7 +665,6 @@ if(rsvpForm){
   var loopBtn=document.getElementById('mc-loop');
   var volBtn=document.getElementById('mc-vol');
   var prevBtn=document.getElementById('mc-prev');
-  var tapHint=document.getElementById('tap-hint');
   var cardOpen=false;
   var playing=false;
 
@@ -699,7 +673,6 @@ if(rsvpForm){
   var VOL_ON='<svg id="mc-vol-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>';
   var VOL_OFF='<svg id="mc-vol-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>';
 
-  /* Mark playing state in UI */
   function setPlayingUI(isPlaying){
     playing=isPlaying;
     btn.classList.toggle('playing',isPlaying);
@@ -707,84 +680,35 @@ if(rsvpForm){
     playBtn.classList.toggle('active',isPlaying);
   }
 
-  /* Core play function */
-  function startPlay(){
-    audio.loop=true;
-    audio.play().then(function(){
-      setPlayingUI(true);
-      hideTapHint();
-    }).catch(function(){
-      /* Browser blocked autoplay — show hint */
-      showTapHint();
-    });
-  }
+  /* Set loop on by default */
+  audio.loop=true;
+  loopBtn.classList.add('active');
 
-  /* Tap hint helpers */
-  function showTapHint(){
-    tapHint.classList.add('show');
-    tapHint.setAttribute('aria-hidden','false');
-  }
-  function hideTapHint(){
-    tapHint.classList.remove('show');
-    tapHint.setAttribute('aria-hidden','true');
-  }
+  /* Autoplay — attempt silently on load, no fallback UI */
+  audio.play().then(function(){
+    setPlayingUI(true);
+  }).catch(function(){
+    /* Browser blocked silently — music button still works manually */
+  });
 
-  /* ── AUTOPLAY: try immediately, then on first interaction ── */
-  var autoStarted=false;
-  function autoStart(){
-    if(autoStarted)return;
-    autoStarted=true;
-    startPlay();
-    /* remove listeners once triggered */
-    document.removeEventListener('click',autoStart,true);
-    document.removeEventListener('touchstart',autoStart,true);
-    document.removeEventListener('keydown',autoStart,true);
-  }
-
-  /* 1. Try silently on page load */
-  if(document.readyState==='loading'){
-    document.addEventListener('DOMContentLoaded',function(){
-      audio.play().then(function(){
-        autoStarted=true;
-        setPlayingUI(true);
-      }).catch(function(){
-        /* Blocked — wait for first user gesture */
-        showTapHint();
-        document.addEventListener('click',autoStart,true);
-        document.addEventListener('touchstart',autoStart,true);
-        document.addEventListener('keydown',autoStart,true);
-      });
-    });
-  } else {
-    audio.play().then(function(){
-      autoStarted=true;
-      setPlayingUI(true);
-    }).catch(function(){
-      showTapHint();
-      document.addEventListener('click',autoStart,true);
-      document.addEventListener('touchstart',autoStart,true);
-      document.addEventListener('keydown',autoStart,true);
-    });
-  }
-
-  /* Toggle card open/close */
+  /* Toggle music card */
   btn.addEventListener('click',function(){
     cardOpen=!cardOpen;
     card.classList.toggle('open',cardOpen);
     btn.setAttribute('aria-expanded',cardOpen);
   });
 
-  /* Close on outside click */
+  /* Close card on outside click */
   document.addEventListener('click',function(e){
     if(cardOpen && !document.getElementById('music-widget').contains(e.target)){
       cardOpen=false;card.classList.remove('open');btn.setAttribute('aria-expanded','false');
     }
   });
 
-  /* Play / Pause toggle */
+  /* Play / Pause */
   function togglePlay(){
     if(!playing){
-      audio.play().then(function(){setPlayingUI(true);hideTapHint();}).catch(function(e){console.warn('Play failed:',e);});
+      audio.play().then(function(){setPlayingUI(true);}).catch(function(e){console.warn(e);});
     } else {
       audio.pause();
       setPlayingUI(false);
@@ -795,16 +719,14 @@ if(rsvpForm){
   /* Restart */
   prevBtn.addEventListener('click',function(e){e.stopPropagation();audio.currentTime=0;if(!playing)togglePlay();});
 
-  /* Loop toggle — on by default */
-  audio.loop=true;
-  loopBtn.classList.add('active');
+  /* Loop toggle */
   loopBtn.addEventListener('click',function(e){
     e.stopPropagation();
     audio.loop=!audio.loop;
     loopBtn.classList.toggle('active',audio.loop);
   });
 
-  /* Mute toggle */
+  /* Mute */
   volBtn.addEventListener('click',function(e){
     e.stopPropagation();
     audio.muted=!audio.muted;
@@ -812,11 +734,8 @@ if(rsvpForm){
     volBtn.classList.toggle('active',audio.muted);
   });
 
-  /* Progress bar */
-  function fmtTime(s){
-    var m=Math.floor(s/60);
-    return m+':'+(Math.floor(s%60)<10?'0':'')+Math.floor(s%60);
-  }
+  /* Progress */
+  function fmtTime(s){var m=Math.floor(s/60);return m+':'+(Math.floor(s%60)<10?'0':'')+Math.floor(s%60);}
   audio.addEventListener('timeupdate',function(){
     if(audio.duration){
       progress.value=(audio.currentTime/audio.duration)*100;
@@ -828,7 +747,7 @@ if(rsvpForm){
     if(audio.duration) audio.currentTime=(progress.value/100)*audio.duration;
   });
 
-  /* Ended — restart if loop somehow off */
+  /* Loop safety net */
   audio.addEventListener('ended',function(){
     if(!audio.loop){audio.currentTime=0;audio.play().then(function(){setPlayingUI(true);});}
   });
