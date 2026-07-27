@@ -320,8 +320,8 @@
 </head>
 <body>
 
-<!-- BGM — autoplay + loop -->
-<audio id="bgm-audio" loop preload="auto" autoplay>
+<!-- BGM — muted for autoplay policy bypass; JS unmutes immediately after play starts -->
+<audio id="bgm-audio" loop preload="auto" muted>
   <source src="https://raw.githubusercontent.com/sachi7899/wedding/main/assets/tamil_vinay_bgm.mp3" type="audio/mpeg">
 </audio>
 
@@ -680,15 +680,26 @@ if(rsvpForm){
     playBtn.classList.toggle('active',isPlaying);
   }
 
-  /* Set loop on by default */
+  /* Loop on by default */
   audio.loop=true;
   loopBtn.classList.add('active');
 
-  /* Autoplay — attempt silently on load, no fallback UI */
+  /*
+   * AUTOPLAY FIX — Muted Autoplay Strategy
+   * Browsers block unmuted autoplay without user interaction.
+   * Muted autoplay is always allowed. So:
+   * 1. audio starts with muted=true (set in HTML)
+   * 2. We call play() — succeeds because it's muted
+   * 3. Immediately after play starts, we unmute
+   * Result: music plays with sound from the very first second
+   */
+  audio.muted = true;
   audio.play().then(function(){
+    audio.muted = false;          /* unmute instantly — user hears it */
     setPlayingUI(true);
   }).catch(function(){
-    /* Browser blocked silently — music button still works manually */
+    /* Some strict browsers still block — user can press the floating button */
+    setPlayingUI(false);
   });
 
   /* Toggle music card */
@@ -696,6 +707,11 @@ if(rsvpForm){
     cardOpen=!cardOpen;
     card.classList.toggle('open',cardOpen);
     btn.setAttribute('aria-expanded',cardOpen);
+    /* If not yet playing (very strict browser blocked even muted), start on first click */
+    if(!playing){
+      audio.muted=false;
+      audio.play().then(function(){setPlayingUI(true);}).catch(function(){});
+    }
   });
 
   /* Close card on outside click */
@@ -708,6 +724,7 @@ if(rsvpForm){
   /* Play / Pause */
   function togglePlay(){
     if(!playing){
+      audio.muted=false;
       audio.play().then(function(){setPlayingUI(true);}).catch(function(e){console.warn(e);});
     } else {
       audio.pause();
@@ -726,7 +743,7 @@ if(rsvpForm){
     loopBtn.classList.toggle('active',audio.loop);
   });
 
-  /* Mute */
+  /* Mute toggle */
   volBtn.addEventListener('click',function(e){
     e.stopPropagation();
     audio.muted=!audio.muted;
@@ -734,7 +751,7 @@ if(rsvpForm){
     volBtn.classList.toggle('active',audio.muted);
   });
 
-  /* Progress */
+  /* Progress bar */
   function fmtTime(s){var m=Math.floor(s/60);return m+':'+(Math.floor(s%60)<10?'0':'')+Math.floor(s%60);}
   audio.addEventListener('timeupdate',function(){
     if(audio.duration){
