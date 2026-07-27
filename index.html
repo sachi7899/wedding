@@ -187,32 +187,32 @@
     .event-meta{font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:var(--space-1);display:flex;align-items:center;gap:var(--space-2);}
     .event-desc{font-size:var(--text-sm);color:var(--color-text-faint);line-height:1.75;margin-top:var(--space-4);}
 
-    /* ══════════════════════════════════════════
-       GALLERY — bulletproof mosaic alignment
-       Uses grid-template-areas so every cell
-       is 100% explicitly placed, no auto-flow.
-       ══════════════════════════════════════════ */
+    /* ══════════════════════════════════════════════════
+       GALLERY — 5-photo mosaic, fully explicit placement
+       Layout (desktop):
+         [ DSC04848 — dance/colour ]  [ DSC04799 — B&W ]
+         [ sachin-ardra  ]  [ wedding_photo_web ]  [ sachin-ardra crop ]
+       ══════════════════════════════════════════════════ */
     .gallery-section{padding:clamp(var(--space-16),8vw,var(--space-32)) var(--space-6);}
     .gallery-header{text-align:center;margin-bottom:clamp(var(--space-10),5vw,var(--space-16));}
 
     .gallery-mosaic{
       display:grid;
-      grid-template-columns:2fr 1fr 1fr;
-      grid-template-rows:340px 260px;
+      grid-template-columns:1.4fr 1fr 1fr;
+      grid-template-rows:360px 280px;
       grid-template-areas:
-        "main  tr    tr"
-        "bl    bm    br";
+        "dance  bw    bw"
+        "main   mid   crop";
       gap:var(--space-3);
       border-radius:var(--radius-xl);
       overflow:hidden;
     }
 
-    /* Each cell: fill its area completely, clip overflow */
     .g-item{
       overflow:hidden;
       position:relative;
       background:var(--color-surface-offset);
-      min-height:0;  /* prevent grid blowout */
+      min-height:0;
     }
     .g-item img{
       width:100%;
@@ -223,32 +223,14 @@
     }
     .g-item:hover img{transform:scale(1.05);}
 
-    /* Grid area assignments */
-    .g-item--main { grid-area:main; }
-    .g-item--tr   { grid-area:tr;   }
-    .g-item--bl   { grid-area:bl;   }
-    .g-item--bm   { grid-area:bm;   }
-    .g-item--br   { grid-area:br;   }
+    /* Area assignments */
+    .g-item--dance { grid-area:dance; }
+    .g-item--bw    { grid-area:bw;    }
+    .g-item--main  { grid-area:main;  }
+    .g-item--mid   { grid-area:mid;   }
+    .g-item--crop  { grid-area:crop;  }
 
-    /* "Coming soon" placeholder tile */
-    .g-placeholder{
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      height:100%;
-      gap:var(--space-3);
-      font-family:var(--font-display);
-      font-size:var(--text-lg);
-      font-style:italic;
-      color:var(--color-text-faint);
-      text-align:center;
-      padding:var(--space-6);
-      background:linear-gradient(135deg,var(--color-surface-offset),var(--color-surface-dynamic));
-    }
-    .g-placeholder-emoji{font-size:2.2rem;font-style:normal;}
-
-    /* ── Tablet: 2-column layout ── */
+    /* ── Tablet: 2-col ── */
     @media(max-width:768px){
       .site-nav{display:none;}
       .hamburger{display:flex;}
@@ -258,25 +240,25 @@
 
       .gallery-mosaic{
         grid-template-columns:1fr 1fr;
-        grid-template-rows:240px 200px 200px;
+        grid-template-rows:260px 220px 220px;
         grid-template-areas:
-          "main main"
-          "tr   bl"
-          "bm   br";
+          "dance  bw"
+          "main   mid"
+          "crop   crop";
       }
     }
 
-    /* ── Mobile: single column ── */
+    /* ── Mobile: single col ── */
     @media(max-width:480px){
       .gallery-mosaic{
         grid-template-columns:1fr;
-        grid-template-rows:repeat(5,220px);
+        grid-template-rows:repeat(5,230px);
         grid-template-areas:
+          "dance"
+          "bw"
           "main"
-          "tr"
-          "bl"
-          "bm"
-          "br";
+          "mid"
+          "crop";
       }
     }
 
@@ -368,12 +350,12 @@
       <span class="heart-pop" aria-hidden="true">💛</span>
       <div class="hero-illustration" aria-label="Sachin and Ardra — our photo">
         <img
-          src="https://raw.githubusercontent.com/sachi7899/wedding/main/assets/sachin-ardra.jpg.JPG"
+          src="https://raw.githubusercontent.com/sachi7899/wedding/main/assets/DSC04848.jpg"
           alt="Sachin and Ardra together"
           width="280"
           height="360"
           loading="eager"
-          onerror="this.onerror=null;this.parentElement.style.background='var(--color-primary-soft)';this.parentElement.innerHTML='<div style=&quot;display:flex;align-items:center;justify-content:center;height:100%;font-size:5rem;&quot;>💑</div>';"
+          onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/sachi7899/wedding/main/assets/sachin-ardra.jpg.JPG';this.onerror=function(){this.parentElement.innerHTML='<div style=&quot;display:flex;align-items:center;justify-content:center;height:100%;font-size:5rem;&quot;>💑</div>';};"
         />
       </div>
     </div>
@@ -422,12 +404,12 @@
       <div class="story-img-wrap">
         <div class="story-img-frame">
           <img
-            src="https://raw.githubusercontent.com/sachi7899/wedding/main/assets/sachin-ardra.jpg.JPG"
-            alt="Sachin and Ardra"
+            src="https://raw.githubusercontent.com/sachi7899/wedding/main/assets/DSC04799.jpg"
+            alt="Sachin and Ardra — an intimate moment"
             width="480"
             height="600"
             loading="lazy"
-            onerror="this.style.display='none';this.parentElement.innerHTML='<div style=&quot;display:flex;align-items:center;justify-content:center;height:100%;flex-direction:column;gap:1rem;color:var(--color-text-faint);font-family:var(--font-display);font-size:1.2rem;font-style:italic;padding:2rem;text-align:center;&quot;>📸<br>Photo loading...<br>Check back shortly</div>';"
+            onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/sachi7899/wedding/main/assets/sachin-ardra.jpg.JPG';"
           />
         </div>
         <div class="story-badge">
@@ -499,62 +481,71 @@
       <p class="section-body" style="margin:var(--space-4) auto 0;text-align:center;">Cherished memories of Sachin &amp; Ardra</p>
     </header>
 
+    <!--
+      MOSAIC LAYOUT (desktop 3-col):
+      Row 1: [ DSC04848 dance — col 1 ]  [ DSC04799 B&W — col 2+3 wide ]
+      Row 2: [ sachin-ardra.JPG ]  [ wedding_photo_web.jpg ]  [ DSC04848 crop ]
+    -->
     <div class="gallery-mosaic" role="list">
 
-      <!-- MAIN — large feature photo, spans left 2/3, full height of row 1 -->
+      <!-- TOP-LEFT: DSC04848 — colourful dance shot with bougainvillea -->
+      <div class="g-item g-item--dance" role="listitem">
+        <img
+          src="https://raw.githubusercontent.com/sachi7899/wedding/main/assets/DSC04848.jpg"
+          alt="Sachin and Ardra dancing together under bougainvillea"
+          width="560" height="360"
+          loading="lazy"
+          style="object-position:center top;"
+          onerror="this.onerror=null;this.parentElement.innerHTML='<div style=&quot;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:.75rem;font-family:var(--font-display);font-size:1.1rem;font-style:italic;color:var(--color-text-faint);background:linear-gradient(135deg,var(--color-surface-offset),var(--color-surface-dynamic));padding:1.5rem;text-align:center;&quot;><span style=&quot;font-size:2.2rem;font-style:normal;&quot;>💃</span><span>Dance photo<br>uploading…</span></div>';"
+        />
+      </div>
+
+      <!-- TOP-RIGHT (spans 2 cols): DSC04799 — B&W intimate close-up -->
+      <div class="g-item g-item--bw" role="listitem">
+        <img
+          src="https://raw.githubusercontent.com/sachi7899/wedding/main/assets/DSC04799.jpg"
+          alt="Sachin and Ardra — an intimate black and white moment"
+          width="800" height="360"
+          loading="lazy"
+          style="object-position:center 30%;"
+          onerror="this.onerror=null;this.parentElement.innerHTML='<div style=&quot;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:.75rem;font-family:var(--font-display);font-size:1.1rem;font-style:italic;color:var(--color-text-faint);background:linear-gradient(135deg,var(--color-surface-offset),var(--color-surface-dynamic));padding:1.5rem;text-align:center;&quot;><span style=&quot;font-size:2.2rem;font-style:normal;&quot;>🖤</span><span>B&amp;W photo<br>uploading…</span></div>';"
+        />
+      </div>
+
+      <!-- BOTTOM-LEFT: sachin-ardra.jpg.JPG — original hero photo -->
       <div class="g-item g-item--main" role="listitem">
         <img
           src="https://raw.githubusercontent.com/sachi7899/wedding/main/assets/sachin-ardra.jpg.JPG"
           alt="Sachin and Ardra — our favourite moment"
-          width="800" height="340"
+          width="560" height="280"
           loading="lazy"
           style="object-position:center 20%;"
-          onerror="this.onerror=null;this.parentElement.innerHTML='<div class=&quot;g-placeholder&quot;><span class=&quot;g-placeholder-emoji&quot;>💑</span><span>Our photo</span></div>';"
+          onerror="this.onerror=null;this.parentElement.innerHTML='<div style=&quot;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:.75rem;font-family:var(--font-display);font-size:1.1rem;font-style:italic;color:var(--color-text-faint);background:linear-gradient(135deg,var(--color-surface-offset),var(--color-surface-dynamic));padding:1.5rem;text-align:center;&quot;><span style=&quot;font-size:2.2rem;font-style:normal;&quot;>💑</span><span>Our photo</span></div>';"
         />
       </div>
 
-      <!-- TOP-RIGHT — second couple photo (wedding_photo_web.jpg) -->
-      <div class="g-item g-item--tr" role="listitem">
+      <!-- BOTTOM-MIDDLE: wedding_photo_web.jpg -->
+      <div class="g-item g-item--mid" role="listitem">
         <img
           src="https://raw.githubusercontent.com/sachi7899/wedding/main/assets/wedding_photo_web.jpg"
           alt="Sachin and Ardra — cherished moment"
-          width="400" height="340"
+          width="400" height="280"
           loading="lazy"
           style="object-position:center top;"
-          onerror="this.onerror=null;this.parentElement.innerHTML='<div class=&quot;g-placeholder&quot;><span class=&quot;g-placeholder-emoji&quot;>🌸</span><span>More photos soon</span></div>';"
+          onerror="this.onerror=null;this.parentElement.innerHTML='<div style=&quot;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:.75rem;font-family:var(--font-display);font-size:1.1rem;font-style:italic;color:var(--color-text-faint);background:linear-gradient(135deg,var(--color-surface-offset),var(--color-surface-dynamic));padding:1.5rem;text-align:center;&quot;><span style=&quot;font-size:2.2rem;font-style:normal;&quot;>🌸</span><span>More photos soon</span></div>';"
         />
       </div>
 
-      <!-- BOTTOM-LEFT — couple photo, different crop -->
-      <div class="g-item g-item--bl" role="listitem">
+      <!-- BOTTOM-RIGHT: DSC04848 alternate crop -->
+      <div class="g-item g-item--crop" role="listitem">
         <img
-          src="https://raw.githubusercontent.com/sachi7899/wedding/main/assets/sachin-ardra.jpg.JPG"
-          alt="Sachin and Ardra together"
-          width="400" height="260"
-          loading="lazy"
-          style="object-position:center 35%;"
-          onerror="this.onerror=null;this.parentElement.innerHTML='<div class=&quot;g-placeholder&quot;><span class=&quot;g-placeholder-emoji&quot;>📸</span><span>Photo loading</span></div>';"
-        />
-      </div>
-
-      <!-- BOTTOM-MIDDLE — wedding_photo_web.jpg, different crop -->
-      <div class="g-item g-item--bm" role="listitem">
-        <img
-          src="https://raw.githubusercontent.com/sachi7899/wedding/main/assets/wedding_photo_web.jpg"
-          alt="Wedding day moment"
-          width="400" height="260"
+          src="https://raw.githubusercontent.com/sachi7899/wedding/main/assets/DSC04848.jpg"
+          alt="Sachin and Ardra — dancing close up"
+          width="400" height="280"
           loading="lazy"
           style="object-position:center 60%;"
-          onerror="this.onerror=null;this.parentElement.innerHTML='<div class=&quot;g-placeholder&quot;><span class=&quot;g-placeholder-emoji&quot;>🪔</span><span>Ceremony photos</span></div>';"
+          onerror="this.onerror=null;this.parentElement.innerHTML='<div style=&quot;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:.75rem;font-family:var(--font-display);font-size:1.1rem;font-style:italic;color:var(--color-text-faint);background:linear-gradient(135deg,var(--color-surface-offset),var(--color-surface-dynamic));padding:1.5rem;text-align:center;&quot;><span style=&quot;font-size:2.2rem;font-style:normal;&quot;>🌺</span><span>Photo loading</span></div>';"
         />
-      </div>
-
-      <!-- BOTTOM-RIGHT — "coming soon" placeholder -->
-      <div class="g-item g-item--br" role="listitem">
-        <div class="g-placeholder">
-          <span class="g-placeholder-emoji">💐</span>
-          <span>More photos<br>coming soon</span>
-        </div>
       </div>
 
     </div>
@@ -665,51 +656,59 @@ ham.addEventListener('click',function(){var o=mnav.classList.toggle('open');ham.
 function closeMobileNav(){mnav.classList.remove('open');ham.classList.remove('open');ham.setAttribute('aria-expanded','false');document.body.style.overflow='';}
 
 /* ── Countdown ── */
-var WEDDING_DATE=new Date('2026-09-05T08:00:00+05:30');
-function tick(){
-  var diff=WEDDING_DATE-new Date();
-  if(diff<=0){['d','h','m','s'].forEach(function(i){document.getElementById('cd-'+i).textContent='00';});return;}
-  var d=Math.floor(diff/86400000),h=Math.floor(diff%86400000/3600000),m=Math.floor(diff%3600000/60000),s=Math.floor(diff%60000/1000);
-  document.getElementById('cd-d').textContent=String(d).padStart(2,'0');
-  document.getElementById('cd-h').textContent=String(h).padStart(2,'0');
-  document.getElementById('cd-m').textContent=String(m).padStart(2,'0');
-  document.getElementById('cd-s').textContent=String(s).padStart(2,'0');
-}
-tick();setInterval(tick,1000);
+(function(){
+  var target=new Date('2026-09-05T06:00:00+05:30');
+  function tick(){
+    var now=new Date(),diff=target-now;
+    if(diff<=0){document.getElementById('cd-d').textContent=document.getElementById('cd-h').textContent=document.getElementById('cd-m').textContent=document.getElementById('cd-s').textContent='0';return;}
+    var d=Math.floor(diff/86400000),h=Math.floor((diff%86400000)/3600000),m=Math.floor((diff%3600000)/60000),s=Math.floor((diff%60000)/1000);
+    document.getElementById('cd-d').textContent=d;
+    document.getElementById('cd-h').textContent=String(h).padStart(2,'0');
+    document.getElementById('cd-m').textContent=String(m).padStart(2,'0');
+    document.getElementById('cd-s').textContent=String(s).padStart(2,'0');
+  }
+  tick();setInterval(tick,1000);
+})();
 
 /* ── RSVP form ── */
-var form=document.getElementById('rsvp-form');
-form.addEventListener('submit',async function(e){
-  e.preventDefault();
-  var n=document.getElementById('r-name').value.trim(),a=document.getElementById('r-attend').value;
-  if(!n||!a){alert('Please fill in your name and attendance.');return;}
-  var rBtn=document.getElementById('rsvp-btn');
-  if(form.action.includes('YOUR_FORM_ID')){
-    document.getElementById('rsvp-success').style.display='block';
-    document.getElementById('rsvp-success').textContent='✨ Thank you! Your RSVP is received — Sachin & Ardra will be in touch!';
-    rBtn.disabled=true;rBtn.textContent='RSVP Sent ✓';
-    return;
-  }
-  rBtn.disabled=true;rBtn.textContent='Sending…';
-  try{
-    var res=await fetch(form.action,{method:'POST',body:new FormData(form),headers:{Accept:'application/json'}});
-    if(res.ok){document.getElementById('rsvp-success').style.display='block';rBtn.textContent='RSVP Sent ✓';}
-    else{rBtn.disabled=false;rBtn.textContent='Send RSVP 💌';alert('Something went wrong. Please try again.');}
-  }catch(err){rBtn.disabled=false;rBtn.textContent='Send RSVP 💌';alert('Connection error. Please try again.');}
-});
+var rsvpForm=document.getElementById('rsvp-form');
+if(rsvpForm){
+  rsvpForm.addEventListener('submit',function(e){
+    var btn=document.getElementById('rsvp-btn');
+    btn.textContent='Sending…';btn.disabled=true;
+    var action=rsvpForm.getAttribute('action');
+    if(action.includes('YOUR_FORM_ID')){
+      e.preventDefault();
+      setTimeout(function(){
+        document.getElementById('rsvp-success').style.display='block';
+        btn.textContent='RSVP Sent 💌';
+      },800);
+    }
+  });
+}
 
 /* ── BGM button ── */
 (function(){
-  var audio=document.getElementById('bgm-audio'),btn=document.getElementById('bgm-btn'),tip=document.getElementById('bgm-tooltip');
-  var playing=false,started=false,tipTimer;
-  function showTip(){tip.classList.add('visible');clearTimeout(tipTimer);tipTimer=setTimeout(function(){tip.classList.remove('visible');},2500);}
-  showTip();
+  var audio=document.getElementById('bgm-audio');
+  var btn=document.getElementById('bgm-btn');
+  var tooltip=document.getElementById('bgm-tooltip');
+  var playing=false,tooltipTimer;
+  function showTooltip(msg){
+    tooltip.textContent=msg;tooltip.classList.add('visible');
+    clearTimeout(tooltipTimer);tooltipTimer=setTimeout(function(){tooltip.classList.remove('visible');},2200);
+  }
   btn.addEventListener('click',function(){
-    if(!started){audio.load();started=true;}
-    if(playing){audio.pause();playing=false;btn.classList.remove('playing');btn.innerHTML='🎵';btn.setAttribute('aria-label','Play Tamil background music');}
-    else{audio.play().then(function(){playing=true;btn.classList.add('playing');btn.innerHTML='🔇';btn.setAttribute('aria-label','Pause music');}).catch(function(){});}
+    if(!playing){
+      audio.play().then(function(){
+        playing=true;btn.classList.add('playing');btn.innerHTML='🎶';btn.setAttribute('aria-label','Pause music');
+        showTooltip('🎵 Now playing…');
+      }).catch(function(){showTooltip('Tap again to play 🎵');});
+    } else {
+      audio.pause();playing=false;btn.classList.remove('playing');btn.innerHTML='🎵';btn.setAttribute('aria-label','Play Tamil background music');
+      showTooltip('Music paused');
+    }
   });
-  audio.addEventListener('ended',function(){playing=false;btn.classList.remove('playing');btn.innerHTML='🎵';});
+  setTimeout(function(){showTooltip('🎵 Play Tamil BGM');},2000);
 })();
 </script>
 </body>
