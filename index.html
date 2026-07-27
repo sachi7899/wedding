@@ -63,7 +63,7 @@
     @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;}}
     a,button{transition:color var(--transition-interactive),background var(--transition-interactive),border-color var(--transition-interactive),box-shadow var(--transition-interactive);}
     .container{max-width:var(--content-default);margin-inline:auto;padding-inline:var(--space-6);}
-    .container-wide{max-width:var(--content-wide);margin-inline:auto;padding-inline:var(--space-6);}
+    .container-wide{max-width:var(--content-wide);margin-inline:auto;padding-inline:var(--space-4);}
     .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border-width:0;}
 
     /* ── Music Player Float Widget ── */
@@ -178,11 +178,11 @@
     @keyframes nudgePop{from{opacity:0;transform:translateY(12px) scale(.9);}to{opacity:1;transform:none;}}
     #autoplay-nudge svg{flex-shrink:0;}
 
-    .fade-in{opacity:1;}
-    @supports(animation-timeline:scroll()){
-      .fade-in{opacity:0;animation:revealFade linear both;animation-timeline:view();animation-range:entry 0% entry 80%;}
-    }
-    @keyframes revealFade{to{opacity:1;}}
+    /* ── Scroll fade-in via IntersectionObserver (works on all browsers incl. Safari/iOS) ── */
+    .fade-in{opacity:0;transform:translateY(16px);transition:opacity 0.6s ease,transform 0.6s ease;}
+    .fade-in.visible{opacity:1;transform:translateY(0);}
+    /* Ensure hero content always visible immediately */
+    .hero .fade-in,.hero-inner{opacity:1;transform:none;}
 
     .site-header{position:fixed;top:0;left:0;right:0;z-index:100;padding:var(--space-4) var(--space-6);display:flex;align-items:center;justify-content:space-between;background:oklch(from var(--color-bg) l c h/0.88);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid oklch(from var(--color-text) l c h/0.06);}
     .site-logo{display:flex;align-items:center;gap:var(--space-3);text-decoration:none;color:var(--color-primary);}
@@ -261,8 +261,9 @@
     .event-meta{font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:var(--space-1);display:flex;align-items:center;gap:var(--space-2);}
     .event-desc{font-size:var(--text-sm);color:var(--color-text-faint);line-height:1.75;margin-top:var(--space-4);}
 
-    .gallery-section{padding:clamp(var(--space-16),8vw,var(--space-32)) var(--space-6);}
-    .gallery-header{text-align:center;margin-bottom:clamp(var(--space-10),5vw,var(--space-16));}
+    /* ── Gallery ── */
+    .gallery-section{padding:clamp(var(--space-16),8vw,var(--space-32)) 0;}
+    .gallery-header{text-align:center;margin-bottom:clamp(var(--space-10),5vw,var(--space-16));padding-inline:var(--space-6);}
     .gallery-mosaic{
       display:grid;
       grid-template-columns:1.4fr 1fr 1fr;
@@ -271,7 +272,6 @@
         "dance  bw    bw"
         "main   mid   crop";
       gap:var(--space-3);
-      border-radius:var(--radius-xl);
       overflow:hidden;
     }
     .g-item{overflow:hidden;position:relative;background:var(--color-surface-offset);min-height:0;min-width:0;}
@@ -282,6 +282,12 @@
     .g-item--main{grid-area:main;}
     .g-item--mid{grid-area:mid;}
     .g-item--crop{grid-area:crop;}
+    /* First and last items get rounded outer corners only */
+    .g-item--dance{border-radius:var(--radius-xl) 0 0 0;}
+    .g-item--bw{border-radius:0 var(--radius-xl) 0 0;}
+    .g-item--main{border-radius:0 0 0 var(--radius-xl);}
+    .g-item--crop{border-radius:0 0 var(--radius-xl) 0;}
+
     @media(max-width:768px){
       .site-nav{display:none;}
       .hamburger{display:flex;}
@@ -290,25 +296,32 @@
       .story-badge{bottom:var(--space-4);right:var(--space-4);}
       .gallery-mosaic{
         grid-template-columns:1fr 1fr;
-        grid-template-rows:260px 220px 220px;
+        grid-template-rows:220px 200px 200px;
         grid-template-areas:
           "dance  bw"
           "main   mid"
           "crop   crop";
+        gap:var(--space-2);
       }
+      .g-item--dance{border-radius:0;}
+      .g-item--bw{border-radius:0;}
+      .g-item--main{border-radius:0;}
+      .g-item--crop{border-radius:0;}
     }
     @media(max-width:480px){
       .gallery-mosaic{
         grid-template-columns:1fr;
-        grid-template-rows:repeat(5,240px);
+        grid-template-rows:repeat(5,220px);
         grid-template-areas:
           "dance"
           "bw"
           "main"
           "mid"
           "crop";
+        gap:var(--space-2);
       }
     }
+
     .travel-section{padding:clamp(var(--space-16),8vw,var(--space-32)) var(--space-6);}
     .travel-header{text-align:center;margin-bottom:clamp(var(--space-10),5vw,var(--space-16));}
     .travel-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr));gap:var(--space-5);}
@@ -336,9 +349,7 @@
 </head>
 <body>
 
-<!-- No <audio> tag needed — we create it dynamically in JS with a blob URL to avoid CORS -->
-
-<!-- Autoplay nudge — shown only if browser blocks autoplay -->
+<!-- Autoplay nudge — shown immediately; hidden once music plays -->
 <div id="autoplay-nudge" class="hidden" role="button" tabindex="0" aria-label="Tap to play wedding music">
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
   Tap to play music &#9834;
@@ -644,6 +655,24 @@ var ham=document.getElementById('hamburger'),mnav=document.getElementById('mobil
 ham.addEventListener('click',function(){var o=mnav.classList.toggle('open');ham.classList.toggle('open',o);ham.setAttribute('aria-expanded',o);document.body.style.overflow=o?'hidden':'';});
 function closeMobileNav(){mnav.classList.remove('open');ham.classList.remove('open');ham.setAttribute('aria-expanded','false');document.body.style.overflow='';}
 
+/* ── Scroll fade-in via IntersectionObserver — works on all browsers incl. Safari/iOS ── */
+(function(){
+  var els = document.querySelectorAll('.fade-in');
+  if (!('IntersectionObserver' in window)) {
+    els.forEach(function(el){ el.classList.add('visible'); });
+    return;
+  }
+  var obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        obs.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+  els.forEach(function(el){ obs.observe(el); });
+})();
+
 /* ── Countdown ── */
 (function(){
   var target=new Date('2026-09-05T06:00:00+05:30');
@@ -675,23 +704,23 @@ if(rsvpForm){
 /* ── Music Player ── */
 (function(){
   /*
-   * ROOT CAUSE: raw.githubusercontent.com sends audio files without
-   * Access-Control-Allow-Origin headers, so the browser cannot load
-   * the file via <audio src="...">. The fix: fetch the MP3 as a blob,
-   * create an object URL, and assign that to the Audio element.
-   * Blob object URLs are same-origin, so CORS is never an issue.
+   * FIX 1 — AUTOPLAY ON RELOAD:
+   * Browsers block autoplay until a user gesture happens.
+   * Strategy: show the nudge banner immediately on load.
+   * The moment ANY touch/click/keydown happens on the page,
+   * we start fetching + playing. This works reliably on both
+   * mobile (Safari/Chrome) and desktop.
    *
-   * AUTOPLAY: We still use the muted→unmute trick so browsers allow
-   * autoplay. If even that is blocked (very strict), we show a
-   * "Tap to play" nudge banner.
+   * FIX 2 — CORS from raw.githubusercontent.com:
+   * Fetch as blob → create object URL → assign to Audio.
+   * Blob URLs are same-origin so no CORS error.
    */
 
   var MP3_URL = 'https://raw.githubusercontent.com/sachi7899/wedding/main/assets/tamil_vinay_bgm.mp3';
 
   var audio = new Audio();
   audio.loop = true;
-  audio.muted = true;
-  audio.preload = 'auto';
+  audio.preload = 'none'; /* don't prefetch until user interacts */
 
   var btn       = document.getElementById('bgm-btn');
   var card      = document.getElementById('music-card');
@@ -704,9 +733,10 @@ if(rsvpForm){
   var prevBtn   = document.getElementById('mc-prev');
   var nudge     = document.getElementById('autoplay-nudge');
 
-  var cardOpen = false;
-  var playing  = false;
+  var cardOpen  = false;
+  var playing   = false;
   var blobReady = false;
+  var loading   = false;
 
   var PLAY_SVG  = '<svg id="mc-play-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
   var PAUSE_SVG = '<svg id="mc-play-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="6" y1="4" x2="6" y2="20"/><line x1="18" y1="4" x2="18" y2="20"/></svg>';
@@ -722,60 +752,65 @@ if(rsvpForm){
     playBtn.classList.toggle('active', on);
   }
 
-  function tryPlay() {
-    audio.muted = true;
-    var p = audio.play();
-    if (p && p.then) {
-      p.then(function() {
+  /* Load blob then play */
+  function loadAndPlay() {
+    if (loading) return;
+    loading = true;
+    fetch(MP3_URL)
+      .then(function(r){ return r.blob(); })
+      .then(function(blob){
+        audio.src = URL.createObjectURL(blob);
+        blobReady = true;
         audio.muted = false;
+        return audio.play();
+      })
+      .then(function(){
         setPlayingUI(true);
         nudge.classList.add('hidden');
-      }).catch(function() {
-        /* autoplay blocked — show nudge */
-        nudge.classList.remove('hidden');
-        setPlayingUI(false);
+      })
+      .catch(function(){
+        /* blob fetch failed — try direct src */
+        if (!blobReady) {
+          audio.src = MP3_URL;
+          blobReady = true;
+        }
+        audio.muted = false;
+        audio.play().then(function(){ setPlayingUI(true); nudge.classList.add('hidden'); }).catch(function(){});
       });
-    }
   }
 
-  /* Step 1 — fetch MP3 as blob to work around GitHub raw CORS headers */
-  fetch(MP3_URL)
-    .then(function(r) { return r.blob(); })
-    .then(function(blob) {
-      audio.src = URL.createObjectURL(blob);
-      blobReady = true;
-      tryPlay();
-    })
-    .catch(function(err) {
-      /* fetch failed — fall back to direct src (works if CORS headers present) */
-      audio.src = MP3_URL;
-      blobReady = true;
-      tryPlay();
-    });
+  /* Show nudge after 1.2s — enough time for page to render */
+  setTimeout(function(){ nudge.classList.remove('hidden'); }, 1200);
 
-  /* Nudge click — first interaction unlocks autoplay */
-  function onInteraction() {
+  /* First interaction anywhere on the page starts music */
+  function onFirstInteraction(e) {
+    /* Don't hijack clicks on the music widget itself */
+    if (document.getElementById('music-widget').contains(e.target)) return;
     nudge.classList.add('hidden');
-    if (!playing) {
-      audio.muted = false;
-      audio.play().then(function() { setPlayingUI(true); }).catch(function(){});
-    }
-    document.removeEventListener('click', onInteraction);
-    document.removeEventListener('keydown', onInteraction);
-    document.removeEventListener('touchstart', onInteraction);
+    if (!playing && !loading) loadAndPlay();
+    document.removeEventListener('click',    onFirstInteraction, true);
+    document.removeEventListener('touchend', onFirstInteraction, true);
+    document.removeEventListener('keydown',  onFirstInteraction, true);
   }
-  nudge.addEventListener('click', onInteraction);
-  nudge.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' ') onInteraction(); });
+  document.addEventListener('click',    onFirstInteraction, true);
+  document.addEventListener('touchend', onFirstInteraction, true);
+  document.addEventListener('keydown',  onFirstInteraction, true);
 
-  /* Toggle music card */
+  /* Nudge tap */
+  nudge.addEventListener('click', function(){
+    nudge.classList.add('hidden');
+    if (!playing && !loading) loadAndPlay();
+  });
+  nudge.addEventListener('keydown', function(e){
+    if(e.key==='Enter'||e.key===' '){ nudge.classList.add('hidden'); if(!playing&&!loading) loadAndPlay(); }
+  });
+
+  /* Toggle music card — also starts music */
   btn.addEventListener('click', function() {
     cardOpen = !cardOpen;
     card.classList.toggle('open', cardOpen);
     btn.setAttribute('aria-expanded', cardOpen);
-    if (!playing && blobReady) {
-      audio.muted = false;
-      audio.play().then(function() { setPlayingUI(true); nudge.classList.add('hidden'); }).catch(function(){});
-    }
+    if (!playing && !loading) loadAndPlay();
   });
 
   /* Close card on outside click */
@@ -789,6 +824,7 @@ if(rsvpForm){
 
   /* Play / Pause */
   function togglePlay() {
+    if (!blobReady) { loadAndPlay(); return; }
     if (!playing) {
       audio.muted = false;
       audio.play().then(function(){ setPlayingUI(true); }).catch(function(e){ console.warn(e); });
