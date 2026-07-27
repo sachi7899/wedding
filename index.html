@@ -162,6 +162,22 @@
     @keyframes bar3{0%,100%{height:6px;}50%{height:16px;}}
     @keyframes bar4{0%,100%{height:14px;}50%{height:4px;}}
 
+    /* Autoplay nudge banner */
+    #autoplay-nudge{
+      position:fixed;bottom:calc(var(--space-6) + 64px);right:var(--space-6);z-index:201;
+      background:var(--color-primary);color:#fff;
+      padding:var(--space-3) var(--space-5);
+      border-radius:var(--radius-full);
+      font-size:var(--text-sm);font-weight:500;
+      box-shadow:var(--shadow-lg);
+      display:flex;align-items:center;gap:var(--space-2);
+      animation:nudgePop .4s cubic-bezier(0.34,1.56,0.64,1) both;
+      cursor:pointer;
+    }
+    #autoplay-nudge.hidden{display:none;}
+    @keyframes nudgePop{from{opacity:0;transform:translateY(12px) scale(.9);}to{opacity:1;transform:none;}}
+    #autoplay-nudge svg{flex-shrink:0;}
+
     .fade-in{opacity:1;}
     @supports(animation-timeline:scroll()){
       .fade-in{opacity:0;animation:revealFade linear both;animation-timeline:view();animation-range:entry 0% entry 80%;}
@@ -320,10 +336,13 @@
 </head>
 <body>
 
-<!-- BGM — muted for autoplay policy bypass; JS unmutes immediately after play starts -->
-<audio id="bgm-audio" loop preload="auto" muted>
-  <source src="https://raw.githubusercontent.com/sachi7899/wedding/main/assets/tamil_vinay_bgm.mp3" type="audio/mpeg">
-</audio>
+<!-- No <audio> tag needed — we create it dynamically in JS with a blob URL to avoid CORS -->
+
+<!-- Autoplay nudge — shown only if browser blocks autoplay -->
+<div id="autoplay-nudge" class="hidden" role="button" tabindex="0" aria-label="Tap to play wedding music">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+  Tap to play music &#9834;
+</div>
 
 <!-- ── FLOATING MUSIC PLAYER ── -->
 <div id="music-widget" aria-label="Music player">
@@ -655,118 +674,168 @@ if(rsvpForm){
 
 /* ── Music Player ── */
 (function(){
-  var audio=document.getElementById('bgm-audio');
-  var btn=document.getElementById('bgm-btn');
-  var card=document.getElementById('music-card');
-  var progress=document.getElementById('music-progress');
-  var curTime=document.getElementById('music-cur');
-  var durTime=document.getElementById('music-dur');
-  var playBtn=document.getElementById('mc-play');
-  var loopBtn=document.getElementById('mc-loop');
-  var volBtn=document.getElementById('mc-vol');
-  var prevBtn=document.getElementById('mc-prev');
-  var cardOpen=false;
-  var playing=false;
+  /*
+   * ROOT CAUSE: raw.githubusercontent.com sends audio files without
+   * Access-Control-Allow-Origin headers, so the browser cannot load
+   * the file via <audio src="...">. The fix: fetch the MP3 as a blob,
+   * create an object URL, and assign that to the Audio element.
+   * Blob object URLs are same-origin, so CORS is never an issue.
+   *
+   * AUTOPLAY: We still use the muted→unmute trick so browsers allow
+   * autoplay. If even that is blocked (very strict), we show a
+   * "Tap to play" nudge banner.
+   */
 
-  var PLAY_SVG='<svg id="mc-play-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
-  var PAUSE_SVG='<svg id="mc-play-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="6" y1="4" x2="6" y2="20"/><line x1="18" y1="4" x2="18" y2="20"/></svg>';
-  var VOL_ON='<svg id="mc-vol-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>';
-  var VOL_OFF='<svg id="mc-vol-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>';
+  var MP3_URL = 'https://raw.githubusercontent.com/sachi7899/wedding/main/assets/tamil_vinay_bgm.mp3';
 
-  function setPlayingUI(isPlaying){
-    playing=isPlaying;
-    btn.classList.toggle('playing',isPlaying);
-    playBtn.innerHTML=isPlaying?PAUSE_SVG:PLAY_SVG;
-    playBtn.classList.toggle('active',isPlaying);
-  }
+  var audio = new Audio();
+  audio.loop = true;
+  audio.muted = true;
+  audio.preload = 'auto';
 
-  /* Loop on by default */
-  audio.loop=true;
+  var btn       = document.getElementById('bgm-btn');
+  var card      = document.getElementById('music-card');
+  var progress  = document.getElementById('music-progress');
+  var curTime   = document.getElementById('music-cur');
+  var durTime   = document.getElementById('music-dur');
+  var playBtn   = document.getElementById('mc-play');
+  var loopBtn   = document.getElementById('mc-loop');
+  var volBtn    = document.getElementById('mc-vol');
+  var prevBtn   = document.getElementById('mc-prev');
+  var nudge     = document.getElementById('autoplay-nudge');
+
+  var cardOpen = false;
+  var playing  = false;
+  var blobReady = false;
+
+  var PLAY_SVG  = '<svg id="mc-play-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
+  var PAUSE_SVG = '<svg id="mc-play-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="6" y1="4" x2="6" y2="20"/><line x1="18" y1="4" x2="18" y2="20"/></svg>';
+  var VOL_ON    = '<svg id="mc-vol-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>';
+  var VOL_OFF   = '<svg id="mc-vol-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>';
+
   loopBtn.classList.add('active');
 
-  /*
-   * AUTOPLAY FIX — Muted Autoplay Strategy
-   * Browsers block unmuted autoplay without user interaction.
-   * Muted autoplay is always allowed. So:
-   * 1. audio starts with muted=true (set in HTML)
-   * 2. We call play() — succeeds because it's muted
-   * 3. Immediately after play starts, we unmute
-   * Result: music plays with sound from the very first second
-   */
-  audio.muted = true;
-  audio.play().then(function(){
-    audio.muted = false;          /* unmute instantly — user hears it */
-    setPlayingUI(true);
-  }).catch(function(){
-    /* Some strict browsers still block — user can press the floating button */
-    setPlayingUI(false);
-  });
+  function setPlayingUI(on) {
+    playing = on;
+    btn.classList.toggle('playing', on);
+    playBtn.innerHTML = on ? PAUSE_SVG : PLAY_SVG;
+    playBtn.classList.toggle('active', on);
+  }
+
+  function tryPlay() {
+    audio.muted = true;
+    var p = audio.play();
+    if (p && p.then) {
+      p.then(function() {
+        audio.muted = false;
+        setPlayingUI(true);
+        nudge.classList.add('hidden');
+      }).catch(function() {
+        /* autoplay blocked — show nudge */
+        nudge.classList.remove('hidden');
+        setPlayingUI(false);
+      });
+    }
+  }
+
+  /* Step 1 — fetch MP3 as blob to work around GitHub raw CORS headers */
+  fetch(MP3_URL)
+    .then(function(r) { return r.blob(); })
+    .then(function(blob) {
+      audio.src = URL.createObjectURL(blob);
+      blobReady = true;
+      tryPlay();
+    })
+    .catch(function(err) {
+      /* fetch failed — fall back to direct src (works if CORS headers present) */
+      audio.src = MP3_URL;
+      blobReady = true;
+      tryPlay();
+    });
+
+  /* Nudge click — first interaction unlocks autoplay */
+  function onInteraction() {
+    nudge.classList.add('hidden');
+    if (!playing) {
+      audio.muted = false;
+      audio.play().then(function() { setPlayingUI(true); }).catch(function(){});
+    }
+    document.removeEventListener('click', onInteraction);
+    document.removeEventListener('keydown', onInteraction);
+    document.removeEventListener('touchstart', onInteraction);
+  }
+  nudge.addEventListener('click', onInteraction);
+  nudge.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' ') onInteraction(); });
 
   /* Toggle music card */
-  btn.addEventListener('click',function(){
-    cardOpen=!cardOpen;
-    card.classList.toggle('open',cardOpen);
-    btn.setAttribute('aria-expanded',cardOpen);
-    /* If not yet playing (very strict browser blocked even muted), start on first click */
-    if(!playing){
-      audio.muted=false;
-      audio.play().then(function(){setPlayingUI(true);}).catch(function(){});
+  btn.addEventListener('click', function() {
+    cardOpen = !cardOpen;
+    card.classList.toggle('open', cardOpen);
+    btn.setAttribute('aria-expanded', cardOpen);
+    if (!playing && blobReady) {
+      audio.muted = false;
+      audio.play().then(function() { setPlayingUI(true); nudge.classList.add('hidden'); }).catch(function(){});
     }
   });
 
   /* Close card on outside click */
-  document.addEventListener('click',function(e){
-    if(cardOpen && !document.getElementById('music-widget').contains(e.target)){
-      cardOpen=false;card.classList.remove('open');btn.setAttribute('aria-expanded','false');
+  document.addEventListener('click', function(e) {
+    if (cardOpen && !document.getElementById('music-widget').contains(e.target)) {
+      cardOpen = false;
+      card.classList.remove('open');
+      btn.setAttribute('aria-expanded', 'false');
     }
   });
 
   /* Play / Pause */
-  function togglePlay(){
-    if(!playing){
-      audio.muted=false;
-      audio.play().then(function(){setPlayingUI(true);}).catch(function(e){console.warn(e);});
+  function togglePlay() {
+    if (!playing) {
+      audio.muted = false;
+      audio.play().then(function(){ setPlayingUI(true); }).catch(function(e){ console.warn(e); });
     } else {
       audio.pause();
       setPlayingUI(false);
     }
   }
-  playBtn.addEventListener('click',function(e){e.stopPropagation();togglePlay();});
+  playBtn.addEventListener('click', function(e){ e.stopPropagation(); togglePlay(); });
 
   /* Restart */
-  prevBtn.addEventListener('click',function(e){e.stopPropagation();audio.currentTime=0;if(!playing)togglePlay();});
+  prevBtn.addEventListener('click', function(e){
+    e.stopPropagation();
+    audio.currentTime = 0;
+    if (!playing) togglePlay();
+  });
 
   /* Loop toggle */
-  loopBtn.addEventListener('click',function(e){
+  loopBtn.addEventListener('click', function(e){
     e.stopPropagation();
-    audio.loop=!audio.loop;
-    loopBtn.classList.toggle('active',audio.loop);
+    audio.loop = !audio.loop;
+    loopBtn.classList.toggle('active', audio.loop);
   });
 
   /* Mute toggle */
-  volBtn.addEventListener('click',function(e){
+  volBtn.addEventListener('click', function(e){
     e.stopPropagation();
-    audio.muted=!audio.muted;
-    volBtn.innerHTML=audio.muted?VOL_OFF:VOL_ON;
-    volBtn.classList.toggle('active',audio.muted);
+    audio.muted = !audio.muted;
+    volBtn.innerHTML = audio.muted ? VOL_OFF : VOL_ON;
+    volBtn.classList.toggle('active', audio.muted);
   });
 
   /* Progress bar */
-  function fmtTime(s){var m=Math.floor(s/60);return m+':'+(Math.floor(s%60)<10?'0':'')+Math.floor(s%60);}
-  audio.addEventListener('timeupdate',function(){
-    if(audio.duration){
-      progress.value=(audio.currentTime/audio.duration)*100;
-      curTime.textContent=fmtTime(audio.currentTime);
-      durTime.textContent=fmtTime(audio.duration);
+  function fmtTime(s){ var m=Math.floor(s/60); return m+':'+(Math.floor(s%60)<10?'0':'')+Math.floor(s%60); }
+  audio.addEventListener('timeupdate', function(){
+    if (audio.duration) {
+      progress.value = (audio.currentTime / audio.duration) * 100;
+      curTime.textContent = fmtTime(audio.currentTime);
+      durTime.textContent = fmtTime(audio.duration);
     }
   });
-  progress.addEventListener('input',function(){
-    if(audio.duration) audio.currentTime=(progress.value/100)*audio.duration;
+  progress.addEventListener('input', function(){
+    if (audio.duration) audio.currentTime = (progress.value / 100) * audio.duration;
   });
 
-  /* Loop safety net */
-  audio.addEventListener('ended',function(){
-    if(!audio.loop){audio.currentTime=0;audio.play().then(function(){setPlayingUI(true);});}
+  audio.addEventListener('ended', function(){
+    if (!audio.loop) { audio.currentTime=0; audio.play().then(function(){ setPlayingUI(true); }); }
   });
 
 })();
