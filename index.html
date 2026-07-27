@@ -187,66 +187,98 @@
     .event-meta{font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:var(--space-1);display:flex;align-items:center;gap:var(--space-2);}
     .event-desc{font-size:var(--text-sm);color:var(--color-text-faint);line-height:1.75;margin-top:var(--space-4);}
 
-    /* ── GALLERY — fixed alignment ── */
+    /* ══════════════════════════════════════════
+       GALLERY — bulletproof mosaic alignment
+       Uses grid-template-areas so every cell
+       is 100% explicitly placed, no auto-flow.
+       ══════════════════════════════════════════ */
     .gallery-section{padding:clamp(var(--space-16),8vw,var(--space-32)) var(--space-6);}
     .gallery-header{text-align:center;margin-bottom:clamp(var(--space-10),5vw,var(--space-16));}
 
-    /* Desktop: 3-column mosaic with consistent row heights */
     .gallery-mosaic{
       display:grid;
-      grid-template-columns:repeat(3,1fr);
-      grid-template-rows:320px 240px;
+      grid-template-columns:2fr 1fr 1fr;
+      grid-template-rows:340px 260px;
+      grid-template-areas:
+        "main  tr    tr"
+        "bl    bm    br";
       gap:var(--space-3);
       border-radius:var(--radius-xl);
       overflow:hidden;
     }
+
+    /* Each cell: fill its area completely, clip overflow */
     .g-item{
-      background:var(--color-surface-offset);
       overflow:hidden;
       position:relative;
-      /* Every cell fills its assigned grid area completely */
-      width:100%;
-      height:100%;
+      background:var(--color-surface-offset);
+      min-height:0;  /* prevent grid blowout */
     }
     .g-item img{
       width:100%;
       height:100%;
       object-fit:cover;
-      object-position:center;
       display:block;
       transition:transform .5s ease;
     }
-    .g-item:hover img{transform:scale(1.06);}
+    .g-item:hover img{transform:scale(1.05);}
 
-    /* First photo spans 2 columns, full first row */
-    .g-item:nth-child(1){
-      grid-column:1 / 3;
-      grid-row:1 / 2;
+    /* Grid area assignments */
+    .g-item--main { grid-area:main; }
+    .g-item--tr   { grid-area:tr;   }
+    .g-item--bl   { grid-area:bl;   }
+    .g-item--bm   { grid-area:bm;   }
+    .g-item--br   { grid-area:br;   }
+
+    /* "Coming soon" placeholder tile */
+    .g-placeholder{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      height:100%;
+      gap:var(--space-3);
+      font-family:var(--font-display);
+      font-size:var(--text-lg);
+      font-style:italic;
+      color:var(--color-text-faint);
+      text-align:center;
+      padding:var(--space-6);
+      background:linear-gradient(135deg,var(--color-surface-offset),var(--color-surface-dynamic));
     }
-    /* Second photo: top-right cell */
-    .g-item:nth-child(2){
-      grid-column:3 / 4;
-      grid-row:1 / 2;
-    }
-    /* Items 3–5 fill the second row evenly, one column each */
-    .g-item:nth-child(3){
-      grid-column:1 / 2;
-      grid-row:2 / 3;
-    }
-    .g-item:nth-child(4){
-      grid-column:2 / 3;
-      grid-row:2 / 3;
-    }
-    .g-item:nth-child(5){
-      grid-column:3 / 4;
-      grid-row:2 / 3;
-    }
-    /* 6th item hidden on desktop — shown only on mobile as bonus */
-    .g-item:nth-child(6){
-      display:none;
+    .g-placeholder-emoji{font-size:2.2rem;font-style:normal;}
+
+    /* ── Tablet: 2-column layout ── */
+    @media(max-width:768px){
+      .site-nav{display:none;}
+      .hamburger{display:flex;}
+      .story-grid{grid-template-columns:1fr;}
+      .story-img-wrap{order:-1;}
+      .story-badge{bottom:var(--space-4);right:var(--space-4);}
+
+      .gallery-mosaic{
+        grid-template-columns:1fr 1fr;
+        grid-template-rows:240px 200px 200px;
+        grid-template-areas:
+          "main main"
+          "tr   bl"
+          "bm   br";
+      }
     }
 
-    .g-placeholder{display:flex;align-items:center;justify-content:center;height:100%;font-family:var(--font-display);font-size:var(--text-lg);font-style:italic;color:var(--color-text-faint);text-align:center;padding:var(--space-4);background:linear-gradient(135deg,var(--color-surface-offset),var(--color-surface-dynamic));}
+    /* ── Mobile: single column ── */
+    @media(max-width:480px){
+      .gallery-mosaic{
+        grid-template-columns:1fr;
+        grid-template-rows:repeat(5,220px);
+        grid-template-areas:
+          "main"
+          "tr"
+          "bl"
+          "bm"
+          "br";
+      }
+    }
 
     .travel-section{padding:clamp(var(--space-16),8vw,var(--space-32)) var(--space-6);}
     .travel-header{text-align:center;margin-bottom:clamp(var(--space-10),5vw,var(--space-16));}
@@ -271,56 +303,15 @@
     .site-footer{padding:clamp(var(--space-12),6vw,var(--space-20)) var(--space-6);background:var(--color-surface-offset);text-align:center;border-top:1px solid oklch(from var(--color-text) l c h/0.08);}
     .footer-names{font-family:var(--font-display);font-size:var(--text-2xl);font-weight:300;color:var(--color-text);margin-bottom:var(--space-3);}
     .footer-sub{font-size:var(--text-sm);color:var(--color-text-faint);letter-spacing:.06em;}
-
-    /* ── Responsive: tablet (≤ 768px) ── */
-    @media(max-width:768px){
-      .site-nav{display:none;}
-      .hamburger{display:flex;}
-      .story-grid{grid-template-columns:1fr;}
-      .story-img-wrap{order:-1;}
-      .story-badge{bottom:var(--space-4);right:var(--space-4);}
-
-      /* 2-column gallery on tablet */
-      .gallery-mosaic{
-        grid-template-columns:1fr 1fr;
-        grid-template-rows:220px 180px 180px;
-      }
-      .g-item:nth-child(1){grid-column:1 / 3;grid-row:1 / 2;}
-      .g-item:nth-child(2){grid-column:1 / 2;grid-row:2 / 3;}
-      .g-item:nth-child(3){grid-column:2 / 3;grid-row:2 / 3;}
-      .g-item:nth-child(4){grid-column:1 / 2;grid-row:3 / 4;}
-      .g-item:nth-child(5){grid-column:2 / 3;grid-row:3 / 4;}
-      .g-item:nth-child(6){display:none;}
-    }
-
-    /* ── Responsive: mobile (≤ 480px) ── */
-    @media(max-width:480px){
-      /* Single column on mobile — all items stack */
-      .gallery-mosaic{
-        grid-template-columns:1fr;
-        grid-template-rows:repeat(5,220px);
-      }
-      .g-item:nth-child(1){grid-column:1;grid-row:1;}
-      .g-item:nth-child(2){grid-column:1;grid-row:2;}
-      .g-item:nth-child(3){grid-column:1;grid-row:3;}
-      .g-item:nth-child(4){grid-column:1;grid-row:4;}
-      .g-item:nth-child(5){grid-column:1;grid-row:5;}
-      .g-item:nth-child(6){display:none;}
-    }
   </style>
 </head>
 <body>
 
-<!-- ── Tamil BGM (HTML5 Audio — plays natively, no third-party API) ──
-     Track: Tamil-style instrumental from Pixabay (free/open license).
-     Autoplay fires on first user gesture to comply with browser policy.
--->
 <audio id="bgm-audio" loop preload="none">
   <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_3e636d8d6e.mp3" type="audio/mpeg">
   <source src="https://cdn.pixabay.com/download/audio/2021/09/06/audio_d1718ab41b.mp3" type="audio/mpeg">
 </audio>
 
-<!-- Floating BGM Toggle Button -->
 <div id="bgm-tooltip" role="tooltip">🎵 Tamil BGM</div>
 <button id="bgm-btn" aria-label="Play Tamil background music" title="Play Tamil BGM">🎵</button>
 
@@ -507,28 +498,65 @@
       <h2 class="section-title">Our <em>Gallery</em></h2>
       <p class="section-body" style="margin:var(--space-4) auto 0;text-align:center;">Cherished memories of Sachin &amp; Ardra</p>
     </header>
+
     <div class="gallery-mosaic" role="list">
-      <div class="g-item" role="listitem">
-        <img src="https://raw.githubusercontent.com/sachi7899/wedding/main/assets/sachin-ardra.jpg.JPG" alt="Sachin and Ardra together" width="800" height="480" loading="lazy"
-          onerror="this.onerror=null;this.parentElement.innerHTML='<div class=&quot;g-placeholder&quot;><div><div style=&quot;font-size:2.5rem;margin-bottom:var(--space-3);&quot;>&#x1F4F8;</div>Photo loading...</div></div>';" />
+
+      <!-- MAIN — large feature photo, spans left 2/3, full height of row 1 -->
+      <div class="g-item g-item--main" role="listitem">
+        <img
+          src="https://raw.githubusercontent.com/sachi7899/wedding/main/assets/sachin-ardra.jpg.JPG"
+          alt="Sachin and Ardra — our favourite moment"
+          width="800" height="340"
+          loading="lazy"
+          style="object-position:center 20%;"
+          onerror="this.onerror=null;this.parentElement.innerHTML='<div class=&quot;g-placeholder&quot;><span class=&quot;g-placeholder-emoji&quot;>💑</span><span>Our photo</span></div>';"
+        />
       </div>
-      <div class="g-item" role="listitem">
-        <img src="https://raw.githubusercontent.com/sachi7899/wedding/main/assets/wedding_photo_web.jpg" alt="Flower decorations" width="400" height="320" loading="lazy"
-          onerror="this.onerror=null;this.parentElement.innerHTML='<div class=&quot;g-placeholder&quot;><div>🌸</div></div>';" />
+
+      <!-- TOP-RIGHT — second couple photo (wedding_photo_web.jpg) -->
+      <div class="g-item g-item--tr" role="listitem">
+        <img
+          src="https://raw.githubusercontent.com/sachi7899/wedding/main/assets/wedding_photo_web.jpg"
+          alt="Sachin and Ardra — cherished moment"
+          width="400" height="340"
+          loading="lazy"
+          style="object-position:center top;"
+          onerror="this.onerror=null;this.parentElement.innerHTML='<div class=&quot;g-placeholder&quot;><span class=&quot;g-placeholder-emoji&quot;>🌸</span><span>More photos soon</span></div>';"
+        />
       </div>
-      <div class="g-item" role="listitem">
-        <img src="https://raw.githubusercontent.com/sachi7899/wedding/main/assets/wedding_photo_web.jpg" alt="Ceremony lights" width="400" height="240" loading="lazy"
-          onerror="this.onerror=null;this.parentElement.innerHTML='<div class=&quot;g-placeholder&quot;><div>🪔</div></div>';" />
+
+      <!-- BOTTOM-LEFT — couple photo, different crop -->
+      <div class="g-item g-item--bl" role="listitem">
+        <img
+          src="https://raw.githubusercontent.com/sachi7899/wedding/main/assets/sachin-ardra.jpg.JPG"
+          alt="Sachin and Ardra together"
+          width="400" height="260"
+          loading="lazy"
+          style="object-position:center 35%;"
+          onerror="this.onerror=null;this.parentElement.innerHTML='<div class=&quot;g-placeholder&quot;><span class=&quot;g-placeholder-emoji&quot;>📸</span><span>Photo loading</span></div>';"
+        />
       </div>
-      <div class="g-item" role="listitem">
-        <img src="https://picsum.photos/seed/guruvayoor-temple/400/240" alt="Temple" width="400" height="240" loading="lazy" />
+
+      <!-- BOTTOM-MIDDLE — wedding_photo_web.jpg, different crop -->
+      <div class="g-item g-item--bm" role="listitem">
+        <img
+          src="https://raw.githubusercontent.com/sachi7899/wedding/main/assets/wedding_photo_web.jpg"
+          alt="Wedding day moment"
+          width="400" height="260"
+          loading="lazy"
+          style="object-position:center 60%;"
+          onerror="this.onerror=null;this.parentElement.innerHTML='<div class=&quot;g-placeholder&quot;><span class=&quot;g-placeholder-emoji&quot;>🪔</span><span>Ceremony photos</span></div>';"
+        />
       </div>
-      <div class="g-item" role="listitem">
-        <div class="g-placeholder"><div><div style="font-size:2.5rem;margin-bottom:var(--space-3);">&#x1F490;</div>More photos coming soon</div></div>
+
+      <!-- BOTTOM-RIGHT — "coming soon" placeholder -->
+      <div class="g-item g-item--br" role="listitem">
+        <div class="g-placeholder">
+          <span class="g-placeholder-emoji">💐</span>
+          <span>More photos<br>coming soon</span>
+        </div>
       </div>
-      <div class="g-item" role="listitem" style="display:none;">
-        <img src="https://picsum.photos/seed/kerala-palakkad/400/240" alt="Palakkad landscape" width="400" height="240" loading="lazy" />
-      </div>
+
     </div>
   </div>
 </section>
@@ -658,79 +686,30 @@ form.addEventListener('submit',async function(e){
   var rBtn=document.getElementById('rsvp-btn');
   if(form.action.includes('YOUR_FORM_ID')){
     document.getElementById('rsvp-success').style.display='block';
-    document.getElementById('rsvp-success').textContent='✨ Thank you! Your RSVP is received. (Note: email notifications need Formspree setup.)';
-    form.querySelectorAll('input,select,textarea,button').forEach(function(el){el.disabled=true;});
-    rBtn.textContent='✓ RSVP Sent!';return;
+    document.getElementById('rsvp-success').textContent='✨ Thank you! Your RSVP is received — Sachin & Ardra will be in touch!';
+    rBtn.disabled=true;rBtn.textContent='RSVP Sent ✓';
+    return;
   }
-  rBtn.textContent='Sending…';rBtn.disabled=true;
+  rBtn.disabled=true;rBtn.textContent='Sending…';
   try{
     var res=await fetch(form.action,{method:'POST',body:new FormData(form),headers:{Accept:'application/json'}});
-    if(res.ok){document.getElementById('rsvp-success').style.display='block';form.querySelectorAll('input,select,textarea,button').forEach(function(el){el.disabled=true;});rBtn.textContent='✓ RSVP Sent!';document.querySelector('.formspree-note').style.display='none';}
-    else{rBtn.textContent='Send RSVP 💌';rBtn.disabled=false;alert('Something went wrong. Please try again.');}
-  }catch(err){rBtn.textContent='Send RSVP 💌';rBtn.disabled=false;alert('Network error. Please try again.');}
+    if(res.ok){document.getElementById('rsvp-success').style.display='block';rBtn.textContent='RSVP Sent ✓';}
+    else{rBtn.disabled=false;rBtn.textContent='Send RSVP 💌';alert('Something went wrong. Please try again.');}
+  }catch(err){rBtn.disabled=false;rBtn.textContent='Send RSVP 💌';alert('Connection error. Please try again.');}
 });
 
-/* ── Tamil BGM Controller ──────────────────────────────────────────────────
-   Approach : Native HTML5 <audio> element — no YouTube iframe API,
-              no third-party dependencies, no CORS issues.
-   Track    : Tamil-style romantic instrumental sourced from Pixabay CDN
-              (free for commercial/personal use, no attribution required).
-   Autoplay : Browser policy blocks autoplay without a user gesture.
-              We listen for the FIRST gesture on the page and auto-start
-              once, then hand control to the floating 🎵 button.
-   Loop     : The <audio loop> attribute handles infinite repeat.
-   Volume   : Set to 45% so it never overpowers reading content.
-────────────────────────────────────────────────────────────────────────── */
+/* ── BGM button ── */
 (function(){
-  var audio   = document.getElementById('bgm-audio');
-  var btn     = document.getElementById('bgm-btn');
-  var tooltip = document.getElementById('bgm-tooltip');
-  var playing = false;
-  var started = false;
-
-  audio.volume = 0.45;
-
-  function setPlaying(p){
-    playing = p;
-    btn.textContent  = p ? '🎶' : '🎵';
-    btn.setAttribute('aria-label', p ? 'Pause Tamil BGM' : 'Play Tamil BGM');
-    btn.classList.toggle('playing', p);
-    tooltip.textContent = p ? '🎶 Tamil BGM playing' : '🎵 Tamil BGM';
-  }
-
-  /* Manual play/pause toggle */
-  btn.addEventListener('click', function(e){
-    e.stopPropagation();
-    if(playing){
-      audio.pause();
-      setPlaying(false);
-    } else {
-      audio.play().then(function(){ setPlaying(true); }).catch(function(){});
-    }
+  var audio=document.getElementById('bgm-audio'),btn=document.getElementById('bgm-btn'),tip=document.getElementById('bgm-tooltip');
+  var playing=false,started=false,tipTimer;
+  function showTip(){tip.classList.add('visible');clearTimeout(tipTimer);tipTimer=setTimeout(function(){tip.classList.remove('visible');},2500);}
+  showTip();
+  btn.addEventListener('click',function(){
+    if(!started){audio.load();started=true;}
+    if(playing){audio.pause();playing=false;btn.classList.remove('playing');btn.innerHTML='🎵';btn.setAttribute('aria-label','Play Tamil background music');}
+    else{audio.play().then(function(){playing=true;btn.classList.add('playing');btn.innerHTML='🔇';btn.setAttribute('aria-label','Pause music');}).catch(function(){});}
   });
-
-  /* Tooltip on hover */
-  btn.addEventListener('mouseenter', function(){ tooltip.classList.add('visible'); });
-  btn.addEventListener('mouseleave', function(){ tooltip.classList.remove('visible'); });
-
-  /* Auto-start on first user interaction — satisfies browser autoplay policy */
-  function tryAutoStart(){
-    if(started) return;
-    started = true;
-    ['click','touchstart','keydown','scroll'].forEach(function(ev){
-      document.removeEventListener(ev, tryAutoStart, true);
-    });
-    audio.play().then(function(){ setPlaying(true); }).catch(function(){ /* user or browser blocked — that is fine */ });
-  }
-  ['click','touchstart','keydown','scroll'].forEach(function(ev){
-    document.addEventListener(ev, tryAutoStart, { passive: true, capture: true });
-  });
-
-  /* Safety fallback: if loop attribute somehow fails, restart manually */
-  audio.addEventListener('ended', function(){
-    audio.currentTime = 0;
-    audio.play().catch(function(){});
-  });
+  audio.addEventListener('ended',function(){playing=false;btn.classList.remove('playing');btn.innerHTML='🎵';});
 })();
 </script>
 </body>
