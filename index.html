@@ -328,14 +328,9 @@
 </head>
 <body>
 
-<!-- ── MUSIC: Upload your .mp3 file to assets/ folder and update the src below ── -->
-<!-- To add music: go to github.com/sachi7899/wedding/upload/main/assets -->
-<!-- Then upload your .mp3 file (e.g. bgm.mp3) and update the src below -->
-<audio id="bgm-audio" loop preload="none">
-  <!-- PRIMARY: your uploaded file in assets/ folder -->
-  <source src="https://raw.githubusercontent.com/sachi7899/wedding/main/assets/bgm.mp3" type="audio/mpeg" id="bgm-src">
-  <!-- FALLBACK: a gentle instrumental (works without uploading anything) -->
-  <source src="https://upload.wikimedia.org/wikipedia/commons/9/9f/Cello_suite_1_mov_1.ogg" type="audio/ogg">
+<!-- ── MUSIC: tamil_vinay_bgm.mp3 uploaded to assets/ ── -->
+<audio id="bgm-audio" loop preload="auto">
+  <source src="https://raw.githubusercontent.com/sachi7899/wedding/main/assets/tamil_vinay_bgm.mp3" type="audio/mpeg">
 </audio>
 
 <!-- ── FLOATING MUSIC PLAYER ── -->
@@ -345,7 +340,7 @@
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
       Background Music
     </div>
-    <div id="music-track-name" class="no-track">No track uploaded yet</div>
+    <div id="music-track-name">♪ Tamil Vinay BGM</div>
     <input type="range" id="music-progress" min="0" max="100" value="0" aria-label="Playback progress">
     <div class="music-times">
       <span id="music-cur">0:00</span>
@@ -364,11 +359,6 @@
       <button class="mc-btn" id="mc-vol" aria-label="Volume" title="Toggle mute">
         <svg id="mc-vol-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
       </button>
-    </div>
-    <div class="music-divider"></div>
-    <div class="music-upload-hint">
-      🎵 Upload <code style="font-size:var(--text-xs);background:var(--color-surface-offset);padding:1px 4px;border-radius:3px;">bgm.mp3</code> to <code style="font-size:var(--text-xs);background:var(--color-surface-offset);padding:1px 4px;border-radius:3px;">assets/</code><br>
-      <a href="https://github.com/sachi7899/wedding/upload/main/assets" target="_blank" rel="noopener noreferrer">→ Upload music here</a>
     </div>
   </div>
   <button id="bgm-btn" aria-label="Open music player" aria-expanded="false">
@@ -676,49 +666,36 @@ if(rsvpForm){
   var audio=document.getElementById('bgm-audio');
   var btn=document.getElementById('bgm-btn');
   var card=document.getElementById('music-card');
-  var trackName=document.getElementById('music-track-name');
   var progress=document.getElementById('music-progress');
   var curTime=document.getElementById('music-cur');
   var durTime=document.getElementById('music-dur');
   var playBtn=document.getElementById('mc-play');
-  var playIcon=document.getElementById('mc-play-icon');
   var loopBtn=document.getElementById('mc-loop');
   var volBtn=document.getElementById('mc-vol');
-  var volIcon=document.getElementById('mc-vol-icon');
   var prevBtn=document.getElementById('mc-prev');
   var cardOpen=false;
   var playing=false;
 
-  // Icons
   var PLAY_SVG='<svg id="mc-play-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
   var PAUSE_SVG='<svg id="mc-play-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="6" y1="4" x2="6" y2="20"/><line x1="18" y1="4" x2="18" y2="20"/></svg>';
   var VOL_ON='<svg id="mc-vol-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>';
   var VOL_OFF='<svg id="mc-vol-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>';
 
-  // Detect if the hosted bgm.mp3 actually exists
-  var bgmSrc='https://raw.githubusercontent.com/sachi7899/wedding/main/assets/bgm.mp3';
-  fetch(bgmSrc,{method:'HEAD'}).then(function(r){
-    if(r.ok){
-      trackName.textContent='♪ Wedding BGM';
-      trackName.classList.remove('no-track');
-    }
-  }).catch(function(){});
-
-  // Toggle card
+  /* Toggle card open/close */
   btn.addEventListener('click',function(){
     cardOpen=!cardOpen;
     card.classList.toggle('open',cardOpen);
     btn.setAttribute('aria-expanded',cardOpen);
   });
 
-  // Close card on outside click
+  /* Close on outside click */
   document.addEventListener('click',function(e){
     if(cardOpen && !document.getElementById('music-widget').contains(e.target)){
       cardOpen=false;card.classList.remove('open');btn.setAttribute('aria-expanded','false');
     }
   });
 
-  // Play / Pause
+  /* Play / Pause */
   function togglePlay(){
     if(!playing){
       audio.play().then(function(){
@@ -726,13 +703,8 @@ if(rsvpForm){
         btn.classList.add('playing');
         playBtn.innerHTML=PAUSE_SVG;
         playBtn.classList.add('active');
-        if(trackName.classList.contains('no-track')){
-          trackName.textContent='♪ Playing…';
-          trackName.classList.remove('no-track');
-        }
-      }).catch(function(e){
-        console.warn('Audio play failed:',e);
-        trackName.textContent='Tap play to start 🎵';
+      }).catch(function(err){
+        console.warn('Audio play failed:',err);
       });
     } else {
       audio.pause();
@@ -745,10 +717,10 @@ if(rsvpForm){
 
   playBtn.addEventListener('click',togglePlay);
 
-  // Restart
+  /* Restart */
   prevBtn.addEventListener('click',function(){audio.currentTime=0;if(!playing)togglePlay();});
 
-  // Loop toggle
+  /* Loop toggle — on by default */
   audio.loop=true;
   loopBtn.classList.add('active');
   loopBtn.addEventListener('click',function(){
@@ -756,14 +728,14 @@ if(rsvpForm){
     loopBtn.classList.toggle('active',audio.loop);
   });
 
-  // Mute toggle
+  /* Mute toggle */
   volBtn.addEventListener('click',function(){
     audio.muted=!audio.muted;
     volBtn.innerHTML=audio.muted?VOL_OFF:VOL_ON;
     volBtn.classList.toggle('active',audio.muted);
   });
 
-  // Progress bar
+  /* Progress bar */
   function fmtTime(s){
     var m=Math.floor(s/60);
     return m+':'+(Math.floor(s%60)<10?'0':'')+Math.floor(s%60);
@@ -779,7 +751,7 @@ if(rsvpForm){
     if(audio.duration) audio.currentTime=(progress.value/100)*audio.duration;
   });
 
-  // Handle ended (when loop is off)
+  /* Ended */
   audio.addEventListener('ended',function(){
     if(!audio.loop){playing=false;btn.classList.remove('playing');playBtn.innerHTML=PLAY_SVG;playBtn.classList.remove('active');}
   });
