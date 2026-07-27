@@ -187,12 +187,11 @@
     .event-meta{font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:var(--space-1);display:flex;align-items:center;gap:var(--space-2);}
     .event-desc{font-size:var(--text-sm);color:var(--color-text-faint);line-height:1.75;margin-top:var(--space-4);}
 
-    /* ══════════════════════════════════════════════════
-       GALLERY — 5-photo mosaic, fully explicit placement
-       Layout (desktop):
-         [ DSC04848 — dance/colour ]  [ DSC04799 — B&W ]
-         [ sachin-ardra  ]  [ wedding_photo_web ]  [ sachin-ardra crop ]
-       ══════════════════════════════════════════════════ */
+    /* ══════════════════════════════════════════
+       GALLERY — 5-photo mosaic, fully explicit
+       Row 1: [ dance/colour ]  [ B&W — wide 2 cols ]
+       Row 2: [ sachin-ardra ]  [ wedding_photo ]  [ dance crop ]
+       ══════════════════════════════════════════ */
     .gallery-section{padding:clamp(var(--space-16),8vw,var(--space-32)) var(--space-6);}
     .gallery-header{text-align:center;margin-bottom:clamp(var(--space-10),5vw,var(--space-16));}
 
@@ -223,21 +222,19 @@
     }
     .g-item:hover img{transform:scale(1.05);}
 
-    /* Area assignments */
     .g-item--dance { grid-area:dance; }
-    .g-item--bw    { grid-area:bw;    }
-    .g-item--main  { grid-area:main;  }
-    .g-item--mid   { grid-area:mid;   }
-    .g-item--crop  { grid-area:crop;  }
+    .g-item--bw    { grid-area:bw;   }
+    .g-item--main  { grid-area:main; }
+    .g-item--mid   { grid-area:mid;  }
+    .g-item--crop  { grid-area:crop; }
 
-    /* ── Tablet: 2-col ── */
+    /* ── Tablet ── */
     @media(max-width:768px){
       .site-nav{display:none;}
       .hamburger{display:flex;}
       .story-grid{grid-template-columns:1fr;}
       .story-img-wrap{order:-1;}
       .story-badge{bottom:var(--space-4);right:var(--space-4);}
-
       .gallery-mosaic{
         grid-template-columns:1fr 1fr;
         grid-template-rows:260px 220px 220px;
@@ -248,7 +245,7 @@
       }
     }
 
-    /* ── Mobile: single col ── */
+    /* ── Mobile ── */
     @media(max-width:480px){
       .gallery-mosaic{
         grid-template-columns:1fr;
@@ -350,7 +347,7 @@
       <span class="heart-pop" aria-hidden="true">💛</span>
       <div class="hero-illustration" aria-label="Sachin and Ardra — our photo">
         <img
-          src="https://raw.githubusercontent.com/sachi7899/wedding/main/assets/DSC04848.jpg"
+          src="https://raw.githubusercontent.com/sachi7899/wedding/main/assets/DSC04848.JPG"
           alt="Sachin and Ardra together"
           width="280"
           height="360"
@@ -404,7 +401,7 @@
       <div class="story-img-wrap">
         <div class="story-img-frame">
           <img
-            src="https://raw.githubusercontent.com/sachi7899/wedding/main/assets/DSC04799.jpg"
+            src="https://raw.githubusercontent.com/sachi7899/wedding/main/assets/DSC04799.JPG"
             alt="Sachin and Ardra — an intimate moment"
             width="480"
             height="600"
@@ -481,38 +478,31 @@
       <p class="section-body" style="margin:var(--space-4) auto 0;text-align:center;">Cherished memories of Sachin &amp; Ardra</p>
     </header>
 
-    <!--
-      MOSAIC LAYOUT (desktop 3-col):
-      Row 1: [ DSC04848 dance — col 1 ]  [ DSC04799 B&W — col 2+3 wide ]
-      Row 2: [ sachin-ardra.JPG ]  [ wedding_photo_web.jpg ]  [ DSC04848 crop ]
-    -->
     <div class="gallery-mosaic" role="list">
 
-      <!-- TOP-LEFT: DSC04848 — colourful dance shot with bougainvillea -->
+      <!-- TOP-LEFT: DSC04848.JPG — colourful dance with bougainvillea -->
       <div class="g-item g-item--dance" role="listitem">
         <img
-          src="https://raw.githubusercontent.com/sachi7899/wedding/main/assets/DSC04848.jpg"
+          src="https://raw.githubusercontent.com/sachi7899/wedding/main/assets/DSC04848.JPG"
           alt="Sachin and Ardra dancing together under bougainvillea"
           width="560" height="360"
           loading="lazy"
           style="object-position:center top;"
-          onerror="this.onerror=null;this.parentElement.innerHTML='<div style=&quot;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:.75rem;font-family:var(--font-display);font-size:1.1rem;font-style:italic;color:var(--color-text-faint);background:linear-gradient(135deg,var(--color-surface-offset),var(--color-surface-dynamic));padding:1.5rem;text-align:center;&quot;><span style=&quot;font-size:2.2rem;font-style:normal;&quot;>💃</span><span>Dance photo<br>uploading…</span></div>';"
         />
       </div>
 
-      <!-- TOP-RIGHT (spans 2 cols): DSC04799 — B&W intimate close-up -->
+      <!-- TOP-RIGHT wide: DSC04799.JPG — B&W intimate close-up -->
       <div class="g-item g-item--bw" role="listitem">
         <img
-          src="https://raw.githubusercontent.com/sachi7899/wedding/main/assets/DSC04799.jpg"
+          src="https://raw.githubusercontent.com/sachi7899/wedding/main/assets/DSC04799.JPG"
           alt="Sachin and Ardra — an intimate black and white moment"
           width="800" height="360"
           loading="lazy"
           style="object-position:center 30%;"
-          onerror="this.onerror=null;this.parentElement.innerHTML='<div style=&quot;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:.75rem;font-family:var(--font-display);font-size:1.1rem;font-style:italic;color:var(--color-text-faint);background:linear-gradient(135deg,var(--color-surface-offset),var(--color-surface-dynamic));padding:1.5rem;text-align:center;&quot;><span style=&quot;font-size:2.2rem;font-style:normal;&quot;>🖤</span><span>B&amp;W photo<br>uploading…</span></div>';"
         />
       </div>
 
-      <!-- BOTTOM-LEFT: sachin-ardra.jpg.JPG — original hero photo -->
+      <!-- BOTTOM-LEFT: sachin-ardra.jpg.JPG -->
       <div class="g-item g-item--main" role="listitem">
         <img
           src="https://raw.githubusercontent.com/sachi7899/wedding/main/assets/sachin-ardra.jpg.JPG"
@@ -520,7 +510,6 @@
           width="560" height="280"
           loading="lazy"
           style="object-position:center 20%;"
-          onerror="this.onerror=null;this.parentElement.innerHTML='<div style=&quot;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:.75rem;font-family:var(--font-display);font-size:1.1rem;font-style:italic;color:var(--color-text-faint);background:linear-gradient(135deg,var(--color-surface-offset),var(--color-surface-dynamic));padding:1.5rem;text-align:center;&quot;><span style=&quot;font-size:2.2rem;font-style:normal;&quot;>💑</span><span>Our photo</span></div>';"
         />
       </div>
 
@@ -532,19 +521,17 @@
           width="400" height="280"
           loading="lazy"
           style="object-position:center top;"
-          onerror="this.onerror=null;this.parentElement.innerHTML='<div style=&quot;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:.75rem;font-family:var(--font-display);font-size:1.1rem;font-style:italic;color:var(--color-text-faint);background:linear-gradient(135deg,var(--color-surface-offset),var(--color-surface-dynamic));padding:1.5rem;text-align:center;&quot;><span style=&quot;font-size:2.2rem;font-style:normal;&quot;>🌸</span><span>More photos soon</span></div>';"
         />
       </div>
 
-      <!-- BOTTOM-RIGHT: DSC04848 alternate crop -->
+      <!-- BOTTOM-RIGHT: DSC04848.JPG alternate crop -->
       <div class="g-item g-item--crop" role="listitem">
         <img
-          src="https://raw.githubusercontent.com/sachi7899/wedding/main/assets/DSC04848.jpg"
+          src="https://raw.githubusercontent.com/sachi7899/wedding/main/assets/DSC04848.JPG"
           alt="Sachin and Ardra — dancing close up"
           width="400" height="280"
           loading="lazy"
-          style="object-position:center 60%;"
-          onerror="this.onerror=null;this.parentElement.innerHTML='<div style=&quot;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:.75rem;font-family:var(--font-display);font-size:1.1rem;font-style:italic;color:var(--color-text-faint);background:linear-gradient(135deg,var(--color-surface-offset),var(--color-surface-dynamic));padding:1.5rem;text-align:center;&quot;><span style=&quot;font-size:2.2rem;font-style:normal;&quot;>🌺</span><span>Photo loading</span></div>';"
+          style="object-position:center 65%;"
         />
       </div>
 
