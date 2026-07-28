@@ -510,7 +510,7 @@
         <p class="event-desc">A sacred gathering of families and friends, united to seek the blessings of our elders and loved ones.</p>
       </article>
       <article class="event-card fade-in">
-        <span class="event-icon" aria-hidden="true">&#129486;</span>
+        <span class="event-icon" aria-hidden="true">&#128509;</span>
         <h3 class="event-name">Wedding Ceremony</h3>
         <p class="event-meta"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> September 5, 2026 &middot; Morning</p>
         <p class="event-meta"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> Guruvayoor Sri Krishna Temple</p>
@@ -577,7 +577,7 @@
         <a href="https://maps.google.com/?q=hotels+in+Palakkad" target="_blank" rel="noopener noreferrer" class="map-btn">&#128205; Search Hotels</a>
       </div>
       <div class="travel-card">
-        <h3 class="travel-card-title">&#128701; Stay in Guruvayoor</h3>
+        <h3 class="travel-card-title">&#128510; Stay in Guruvayoor</h3>
         <p class="travel-card-body">Dedicated guest houses near the temple. Book well in advance as rooms fill quickly on auspicious dates.</p>
         <a href="https://maps.google.com/?q=hotels+in+Guruvayoor" target="_blank" rel="noopener noreferrer" class="map-btn">&#128205; Search Hotels</a>
       </div>
@@ -703,24 +703,11 @@ if(rsvpForm){
 
 /* ── Music Player ── */
 (function(){
-  /*
-   * FIX 1 — AUTOPLAY ON RELOAD:
-   * Browsers block autoplay until a user gesture happens.
-   * Strategy: show the nudge banner immediately on load.
-   * The moment ANY touch/click/keydown happens on the page,
-   * we start fetching + playing. This works reliably on both
-   * mobile (Safari/Chrome) and desktop.
-   *
-   * FIX 2 — CORS from raw.githubusercontent.com:
-   * Fetch as blob → create object URL → assign to Audio.
-   * Blob URLs are same-origin so no CORS error.
-   */
-
   var MP3_URL = 'https://raw.githubusercontent.com/sachi7899/wedding/main/assets/tamil_vinay_bgm.mp3';
 
   var audio = new Audio();
   audio.loop = true;
-  audio.preload = 'none'; /* don't prefetch until user interacts */
+  audio.preload = 'none';
 
   var btn       = document.getElementById('bgm-btn');
   var card      = document.getElementById('music-card');
@@ -752,7 +739,6 @@ if(rsvpForm){
     playBtn.classList.toggle('active', on);
   }
 
-  /* Load blob then play */
   function loadAndPlay() {
     if (loading) return;
     loading = true;
@@ -769,7 +755,6 @@ if(rsvpForm){
         nudge.classList.add('hidden');
       })
       .catch(function(){
-        /* blob fetch failed — try direct src */
         if (!blobReady) {
           audio.src = MP3_URL;
           blobReady = true;
@@ -779,12 +764,9 @@ if(rsvpForm){
       });
   }
 
-  /* Show nudge after 1.2s — enough time for page to render */
   setTimeout(function(){ nudge.classList.remove('hidden'); }, 1200);
 
-  /* First interaction anywhere on the page starts music */
   function onFirstInteraction(e) {
-    /* Don't hijack clicks on the music widget itself */
     if (document.getElementById('music-widget').contains(e.target)) return;
     nudge.classList.add('hidden');
     if (!playing && !loading) loadAndPlay();
@@ -796,7 +778,6 @@ if(rsvpForm){
   document.addEventListener('touchend', onFirstInteraction, true);
   document.addEventListener('keydown',  onFirstInteraction, true);
 
-  /* Nudge tap */
   nudge.addEventListener('click', function(){
     nudge.classList.add('hidden');
     if (!playing && !loading) loadAndPlay();
@@ -805,7 +786,6 @@ if(rsvpForm){
     if(e.key==='Enter'||e.key===' '){ nudge.classList.add('hidden'); if(!playing&&!loading) loadAndPlay(); }
   });
 
-  /* Toggle music card — also starts music */
   btn.addEventListener('click', function() {
     cardOpen = !cardOpen;
     card.classList.toggle('open', cardOpen);
@@ -813,7 +793,6 @@ if(rsvpForm){
     if (!playing && !loading) loadAndPlay();
   });
 
-  /* Close card on outside click */
   document.addEventListener('click', function(e) {
     if (cardOpen && !document.getElementById('music-widget').contains(e.target)) {
       cardOpen = false;
@@ -822,7 +801,6 @@ if(rsvpForm){
     }
   });
 
-  /* Play / Pause */
   function togglePlay() {
     if (!blobReady) { loadAndPlay(); return; }
     if (!playing) {
@@ -835,21 +813,18 @@ if(rsvpForm){
   }
   playBtn.addEventListener('click', function(e){ e.stopPropagation(); togglePlay(); });
 
-  /* Restart */
   prevBtn.addEventListener('click', function(e){
     e.stopPropagation();
     audio.currentTime = 0;
     if (!playing) togglePlay();
   });
 
-  /* Loop toggle */
   loopBtn.addEventListener('click', function(e){
     e.stopPropagation();
     audio.loop = !audio.loop;
     loopBtn.classList.toggle('active', audio.loop);
   });
 
-  /* Mute toggle */
   volBtn.addEventListener('click', function(e){
     e.stopPropagation();
     audio.muted = !audio.muted;
@@ -857,7 +832,6 @@ if(rsvpForm){
     volBtn.classList.toggle('active', audio.muted);
   });
 
-  /* Progress bar */
   function fmtTime(s){ var m=Math.floor(s/60); return m+':'+(Math.floor(s%60)<10?'0':'')+Math.floor(s%60); }
   audio.addEventListener('timeupdate', function(){
     if (audio.duration) {
